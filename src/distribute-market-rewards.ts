@@ -72,19 +72,22 @@ export function computeUserPoints(
 
   const supplyPointsAccrued = market.supplyPointsIndex
     .minus(position.lastSupplyPointsIndex)
-    .times(position.supplyShares);
+    .times(position.supplyShares)
+    .div(PRECISION);
   position.supplyPoints = position.supplyPoints.plus(supplyPointsAccrued);
   position.lastSupplyPointsIndex = market.supplyPointsIndex;
 
   const borrowPointsAccrued = market.borrowPointsIndex
     .minus(position.lastBorrowPointsIndex)
-    .times(position.borrowShares);
+    .times(position.borrowShares)
+    .div(PRECISION);
   position.borrowPoints = position.borrowPoints.plus(borrowPointsAccrued);
   position.lastBorrowPointsIndex = market.borrowPointsIndex;
 
   const collateralPointsAccrued = market.collateralPointsIndex
     .minus(position.lastCollateralPointsIndex)
-    .times(position.collateral);
+    .times(position.collateral)
+    .div(PRECISION);
   position.collateralPoints = position.collateralPoints.plus(
     collateralPointsAccrued
   );
