@@ -1,128 +1,76 @@
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 
-import {
-  MetaMorphoPosition,
-  MetaMorphoPositionReward,
-  MetaMorphoRewardsAccrual,
-  MetaMorphoTx,
-  UserRewardProgramAccrual,
-} from "../generated/schema";
+import { MetaMorphoTx } from "../generated/schema";
 
-import { PRECISION } from "./constants";
-import { distributeMarketRewards } from "./distribute-market-rewards";
-import {
-  setupMetaMorphoPositionReward,
-  setupMetaMorphoRewardsAccrual,
-  setupMetaMorpho,
-  setupMetaMorphoPosition,
-  setupUser,
-} from "./initializers";
+import { POINTS_RATE_PER_SECONDS, PRECISION } from "./constants";
+import { setupMetaMorpho, setupMetaMorphoPosition } from "./initializers";
 
-function accrueMetaMorphoRewardsForOneProgram(
-  mmBlueRewardsAccrual: UserRewardProgramAccrual
-): MetaMorphoRewardsAccrual {
-  const mm = setupMetaMorpho(mmBlueRewardsAccrual.metaMorpho!);
+export function computeVaultPoints(mmAddress: Bytes, timestamp: BigInt): void {
+  // Here, we compute the number of shards and the number of points that the user has accrued.
 
-  const mmRewardsAccrual = setupMetaMorphoRewardsAccrual(
-    mmBlueRewardsAccrual.metaMorpho!,
-    mmBlueRewardsAccrual.rewardProgram
+  const metaMorpho = setupMetaMorpho(mmAddress);
+
+  const deltaT = timestamp.minus(metaMorpho.lastUpdate);
+  if (deltaT.lt(BigInt.fromI32(0))) {
+    log.critical("Negative deltaT for MetaMorpho {}", [
+      mmAddress.toHexString(),
+    ]);
+  }
+
+  const pointEmitted = deltaT.times(POINTS_RATE_PER_SECONDS);
+
+  metaMorpho.totalPoints = metaMorpho.totalPoints.plus(pointEmitted);
+
+  metaMorpho.pointsIndex = metaMorpho.pointsIndex.plus(
+    pointEmitted.times(PRECISION).div(metaMorpho.totalShares)
   );
 
-  const rewardsAccrued = mmBlueRewardsAccrual.supplyRewardsAccrued;
-  if (mm.totalShares.gt(BigInt.zero())) {
-    mmRewardsAccrual.lastSupplyIndex = mmRewardsAccrual.lastSupplyIndex.plus(
-      rewardsAccrued.times(PRECISION).div(mm.totalShares)
-    );
-  }
+  const shardsEmitted = deltaT.times(metaMorpho.totalShares);
 
-  // if shares are zero and supply rewards not to zero, its due to a donation, and we do not redistribute them.
-  if (
-    mm.totalShares.isZero() &&
-    mmBlueRewardsAccrual.supplyRewardsAccrued.gt(BigInt.zero())
-  ) {
-    log.warning(
-      "Donation detected for metamorpho {}, {} rewards not redistributed",
-      [
-        mm.id.toHexString(),
-        mmBlueRewardsAccrual.supplyRewardsAccrued.toHexString(),
-      ]
-    );
-  }
-  mmBlueRewardsAccrual.supplyRewardsAccrued = BigInt.zero();
-  mmBlueRewardsAccrual.save();
+  metaMorpho.totalShards = metaMorpho.totalShards.plus(shardsEmitted);
 
-  mmRewardsAccrual.save();
-  return mmRewardsAccrual;
+  metaMorpho.lastUpdate = timestamp;
+  metaMorpho.save();
 }
 
-function accrueMetaMorphoPositionRewardForOneProgram(
-  mmRewardsAccrual: MetaMorphoRewardsAccrual,
-  mmPosition: MetaMorphoPosition
-): MetaMorphoPositionReward {
-  let mmPositionReward = setupMetaMorphoPositionReward(
-    mmRewardsAccrual.id,
-    mmPosition.id
-  );
+export function computeMetaMorphoPositionPoints(
+  mmAddress: Bytes,
+  userAddress: Bytes,
+  timestamp: BigInt
+): void {
+  const mmPosition = setupMetaMorphoPosition(userAddress, mmAddress);
 
-  const userAccrued = mmRewardsAccrual.lastSupplyIndex
-    .minus(mmPositionReward.lastIndex)
+  const metaMorpho = setupMetaMorpho(mmAddress);
+  // One shard = one share for one second.
+  const shardsReceived = timestamp
+    .minus(mmPosition.lastUpdate)
+    .times(mmPosition.shares);
+
+  mmPosition.supplyShards = mmPosition.supplyShards.plus(shardsReceived);
+  mmPosition.lastUpdate = timestamp;
+
+  const pointsReceived = metaMorpho.pointsIndex
+    .minus(mmPosition.lastSupplyPointsIndex)
     .times(mmPosition.shares)
     .div(PRECISION);
 
-  mmPositionReward.rewardsAccrued =
-    mmPositionReward.rewardsAccrued.plus(userAccrued);
-
-  mmPositionReward.lastIndex = mmRewardsAccrual.lastSupplyIndex;
-
-  mmPositionReward.save();
-
-  return mmPositionReward;
+  mmPosition.supplyPoints = mmPosition.supplyPoints.plus(pointsReceived);
+  mmPosition.lastSupplyPointsIndex = metaMorpho.pointsIndex;
+  mmPosition.save();
 }
-
 export function distributeMetaMorphoRewards(mmTx: MetaMorphoTx): void {
-  // First, we need to accrue the rewards, per RewardProgram, for the vault on the different markets.
+  // position rewards
 
-  let metaMorphoAsBlueUser = setupUser(mmTx.metaMorpho);
+  computeVaultPoints(mmTx.metaMorpho, mmTx.timestamp);
 
-  const bluePositions = metaMorphoAsBlueUser.positions.load();
+  computeMetaMorphoPositionPoints(mmTx.metaMorpho, mmTx.user, mmTx.timestamp);
 
-  for (let i = 0; i < bluePositions.length; i++) {
-    const bluePosition = bluePositions[i];
-    distributeMarketRewards(
-      bluePosition.market,
-      bluePosition.user,
-      mmTx.timestamp
-    );
-  }
-
-  // Refresh entity
-  metaMorphoAsBlueUser = setupUser(mmTx.metaMorpho);
-
-  const metaMorphoRewardsAccruals =
-    metaMorphoAsBlueUser.rewardProgramAccruals.load();
-
-  const position = setupMetaMorphoPosition(mmTx.user, mmTx.metaMorpho);
-
-  // Then, we need to accrue the rewards for the vault, per RewardProgram, for the given user.
-  for (let i = 0; i < metaMorphoRewardsAccruals.length; i++) {
-    const mmBlueRewardsAccrual = metaMorphoRewardsAccruals[i];
-
-    // first, we need to accrue the rewards for the metamorpho vault
-    const metaMorphoRewardsAccrual =
-      accrueMetaMorphoRewardsForOneProgram(mmBlueRewardsAccrual);
-
-    // Then, we update the rewards for the given user.
-    accrueMetaMorphoPositionRewardForOneProgram(
-      metaMorphoRewardsAccrual,
-      position
-    );
-  }
-
-  // shares are negative for withdrawals
-  position.shares = position.shares.plus(mmTx.shares);
-  position.save();
-
+  // accounting. We update the total shares of the metamorpho and the position.
   const metaMorpho = setupMetaMorpho(mmTx.metaMorpho);
+
+  const mmPosition = setupMetaMorphoPosition(mmTx.user, mmTx.metaMorpho);
+
+  mmPosition.shares = mmPosition.shares.plus(mmTx.shares);
   metaMorpho.totalShares = metaMorpho.totalShares.plus(mmTx.shares);
   metaMorpho.save();
 }

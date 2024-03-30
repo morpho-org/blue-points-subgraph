@@ -1,16 +1,11 @@
-import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 
 import {
   Market,
   MetaMorpho,
   MetaMorphoPosition,
-  MetaMorphoPositionReward,
-  MetaMorphoRewardsAccrual,
   Position,
-  PositionReward,
-  URD,
   User,
-  UserRewardProgramAccrual,
 } from "../generated/schema";
 
 import { hashBytes } from "./utils";
@@ -42,6 +37,19 @@ export function setupMarket(marketId: Bytes): Market {
     market.totalBorrowShares = BigInt.zero();
     market.totalCollateral = BigInt.zero();
 
+    market.totalSupplyShards = BigInt.zero();
+    market.totalBorrowShards = BigInt.zero();
+    market.totalCollateralShards = BigInt.zero();
+
+    market.totalSupplyPoints = BigInt.zero();
+    market.supplyPointsIndex = BigInt.zero();
+    market.totalBorrowPoints = BigInt.zero();
+    market.borrowPointsIndex = BigInt.zero();
+    market.totalCollateralPoints = BigInt.zero();
+    market.collateralPointsIndex = BigInt.zero();
+
+    market.lastUpdate = BigInt.zero(); // This is going to be updated with the first update of the market total supplyShares/borrowShares/collateral
+
     market.save();
   }
 
@@ -59,46 +67,24 @@ export function setupPosition(marketId: Bytes, userAddress: Bytes): Position {
     position.supplyShares = BigInt.zero();
     position.borrowShares = BigInt.zero();
     position.collateral = BigInt.zero();
-    const metamorpho = MetaMorpho.load(userAddress);
 
-    if (metamorpho !== null) {
-      position.metaMorpho = metamorpho.id;
-    }
+    position.supplyShards = BigInt.zero();
+    position.borrowShards = BigInt.zero();
+    position.collateralShards = BigInt.zero();
+
+    position.lastUpdate = BigInt.zero(); // will be modified before adding any shares.
+
+    position.supplyPoints = BigInt.zero();
+    position.lastSupplyPointsIndex = BigInt.zero();
+    position.borrowPoints = BigInt.zero();
+    position.lastBorrowPointsIndex = BigInt.zero();
+    position.collateralPoints = BigInt.zero();
+    position.lastCollateralPointsIndex = BigInt.zero();
 
     position.save();
   }
 
   return position;
-}
-
-export function setupPositionReward(
-  marketRewardsId: Bytes,
-  positionId: Bytes
-): PositionReward {
-  const positionRewardsId = hashBytes(positionId.concat(marketRewardsId));
-  let positionRewards = PositionReward.load(positionRewardsId);
-
-  if (!positionRewards) {
-    positionRewards = new PositionReward(positionRewardsId);
-    positionRewards.rewardsRate = marketRewardsId;
-    positionRewards.position = positionId;
-    positionRewards.positionSupplyAccrued = BigInt.zero();
-    positionRewards.positionBorrowAccrued = BigInt.zero();
-    positionRewards.positionCollateralAccrued = BigInt.zero();
-    positionRewards.lastPositionSupplyIndex = BigInt.zero();
-    positionRewards.lastPositionBorrowIndex = BigInt.zero();
-    positionRewards.lastPositionCollateralIndex = BigInt.zero();
-  }
-  return positionRewards;
-}
-
-export function setupURD(address: Address): URD {
-  let urd = URD.load(address);
-  if (!urd) {
-    urd = new URD(address);
-    urd.save();
-  }
-  return urd;
 }
 
 export function setupMetaMorpho(address: Bytes): MetaMorpho {
@@ -118,69 +104,20 @@ export function setupMetaMorphoPosition(
   let metaMorphoPosition = MetaMorphoPosition.load(mmPositionId);
   if (!metaMorphoPosition) {
     metaMorphoPosition = new MetaMorphoPosition(mmPositionId);
-    metaMorphoPosition.user = setupUser(userAddress).id;
+
     metaMorphoPosition.metaMorpho = setupMetaMorpho(metaMorphoAddress).id;
+
+    metaMorphoPosition.user = setupUser(userAddress).id;
+
     metaMorphoPosition.shares = BigInt.zero();
+
+    metaMorphoPosition.supplyShards = BigInt.zero();
+    metaMorphoPosition.lastUpdate = BigInt.zero();
+
+    metaMorphoPosition.supplyPoints = BigInt.zero();
+    metaMorphoPosition.lastSupplyPointsIndex = BigInt.zero();
+
     metaMorphoPosition.save();
   }
   return metaMorphoPosition;
-}
-
-export function setupUserRewardProgramAccrual(
-  userId: Bytes,
-  rewardProgramId: Bytes
-): UserRewardProgramAccrual {
-  let userAccrualId = hashBytes(userId.concat(rewardProgramId));
-  let userAccrualProgram = UserRewardProgramAccrual.load(userAccrualId);
-  if (!userAccrualProgram) {
-    userAccrualProgram = new UserRewardProgramAccrual(userAccrualId);
-    userAccrualProgram.user = userId;
-    userAccrualProgram.rewardProgram = rewardProgramId;
-    userAccrualProgram.supplyRewardsAccrued = BigInt.zero();
-    userAccrualProgram.borrowRewardsAccrued = BigInt.zero();
-    userAccrualProgram.collateralRewardsAccrued = BigInt.zero();
-
-    // check if the user is a metamorpho
-    const metaMorpho = MetaMorpho.load(userId);
-    if (metaMorpho !== null) {
-      userAccrualProgram.metaMorpho = metaMorpho.id;
-    }
-  }
-  return userAccrualProgram;
-}
-
-export function setupMetaMorphoRewardsAccrual(
-  metaMorphoId: Bytes,
-  rewardProgramId: Bytes
-): MetaMorphoRewardsAccrual {
-  let mmRewardsAccrualId = hashBytes(metaMorphoId.concat(rewardProgramId));
-
-  let mmRewardsAccrual = MetaMorphoRewardsAccrual.load(mmRewardsAccrualId);
-  if (!mmRewardsAccrual) {
-    mmRewardsAccrual = new MetaMorphoRewardsAccrual(mmRewardsAccrualId);
-    mmRewardsAccrual.metaMorpho = metaMorphoId;
-    mmRewardsAccrual.rewardProgram = rewardProgramId;
-    mmRewardsAccrual.supplyRewardsAccrued = BigInt.zero();
-
-    mmRewardsAccrual.lastSupplyIndex = BigInt.zero();
-    mmRewardsAccrual.save();
-  }
-  return mmRewardsAccrual;
-}
-
-export function setupMetaMorphoPositionReward(
-  mmRewardsAccrualId: Bytes,
-  mmPositionId: Bytes
-): MetaMorphoPositionReward {
-  const mmPositionRewardId = hashBytes(mmPositionId.concat(mmRewardsAccrualId));
-  let mmPositionReward = MetaMorphoPositionReward.load(mmPositionRewardId);
-
-  if (!mmPositionReward) {
-    mmPositionReward = new MetaMorphoPositionReward(mmPositionRewardId);
-    mmPositionReward.rewardsAccrual = mmRewardsAccrualId;
-    mmPositionReward.position = mmPositionId;
-    mmPositionReward.rewardsAccrued = BigInt.zero();
-    mmPositionReward.lastIndex = BigInt.zero();
-  }
-  return mmPositionReward;
 }
