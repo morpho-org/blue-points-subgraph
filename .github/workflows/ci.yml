@@ -36,7 +36,7 @@ jobs:
     name: Deploy to TheGraph hosted service
     environment:
       name: Hosted Service
-      url: https://thegraph.com/hosted-service/subgraph/morpho-association/morpho-blue-rewards
+      url: https://thegraph.com/hosted-service/subgraph/morpho-association/morpho-blue-rewards-points
     needs: builds
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

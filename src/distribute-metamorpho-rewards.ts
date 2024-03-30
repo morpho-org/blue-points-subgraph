@@ -17,17 +17,19 @@ export function computeVaultPoints(mmAddress: Bytes, timestamp: BigInt): void {
     ]);
   }
 
-  const pointEmitted = deltaT.times(POINTS_RATE_PER_SECONDS);
+  if (metaMorpho.totalShares.gt(BigInt.zero())) {
+    const pointEmitted = deltaT.times(POINTS_RATE_PER_SECONDS);
 
-  metaMorpho.totalPoints = metaMorpho.totalPoints.plus(pointEmitted);
+    metaMorpho.totalPoints = metaMorpho.totalPoints.plus(pointEmitted);
 
-  metaMorpho.pointsIndex = metaMorpho.pointsIndex.plus(
-    pointEmitted.times(PRECISION).div(metaMorpho.totalShares)
-  );
+    metaMorpho.pointsIndex = metaMorpho.pointsIndex.plus(
+      pointEmitted.times(PRECISION).div(metaMorpho.totalShares)
+    );
 
-  const shardsEmitted = deltaT.times(metaMorpho.totalShares);
+    const shardsEmitted = deltaT.times(metaMorpho.totalShares);
 
-  metaMorpho.totalShards = metaMorpho.totalShards.plus(shardsEmitted);
+    metaMorpho.totalShards = metaMorpho.totalShards.plus(shardsEmitted);
+  }
 
   metaMorpho.lastUpdate = timestamp;
   metaMorpho.save();
