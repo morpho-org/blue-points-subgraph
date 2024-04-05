@@ -40,7 +40,7 @@ export function computeMetaMorphoPositionPoints(
   userAddress: Bytes,
   timestamp: BigInt
 ): void {
-  const mmPosition = setupMetaMorphoPosition(userAddress, mmAddress);
+  const mmPosition = setupMetaMorphoPosition(mmAddress, userAddress);
 
   const metaMorpho = setupMetaMorpho(mmAddress);
   // One shard = one share for one second.
@@ -70,7 +70,7 @@ export function distributeMetaMorphoRewards(mmTx: MetaMorphoTx): void {
   // accounting. We update the total shares of the metamorpho and the position.
   const metaMorpho = setupMetaMorpho(mmTx.metaMorpho);
 
-  const mmPosition = setupMetaMorphoPosition(mmTx.user, mmTx.metaMorpho);
+  const mmPosition = setupMetaMorphoPosition(mmTx.metaMorpho, mmTx.user);
 
   mmPosition.shares = mmPosition.shares.plus(mmTx.shares);
   metaMorpho.totalShares = metaMorpho.totalShares.plus(mmTx.shares);

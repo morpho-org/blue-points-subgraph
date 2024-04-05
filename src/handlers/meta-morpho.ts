@@ -33,7 +33,7 @@ export function handleAccrueInterest(event: AccrueInterestEvent): void {
   const mmTx = new MetaMorphoTx(id);
   mmTx.metaMorpho = mm.id;
   mmTx.user = setupUser(mm.feeRecipient!).id;
-  mmTx.position = setupMetaMorphoPosition(mm.feeRecipient!, event.address).id;
+  mmTx.position = setupMetaMorphoPosition(event.address, mm.feeRecipient!).id;
   mmTx.shares = event.params.feeShares;
   mmTx.timestamp = event.block.timestamp;
 
@@ -53,7 +53,7 @@ export function handleDeposit(event: DepositEvent): void {
   mmTx.metaMorpho = setupMetaMorpho(event.address).id;
 
   mmTx.user = setupUser(event.params.owner).id;
-  mmTx.position = setupMetaMorphoPosition(event.params.owner, event.address).id;
+  mmTx.position = setupMetaMorphoPosition(event.address, event.params.owner).id;
   mmTx.shares = event.params.shares;
 
   mmTx.timestamp = event.block.timestamp;
@@ -80,8 +80,8 @@ export function handleTransfer(event: TransferEvent): void {
 
   mmTxFrom.user = setupUser(event.params.from).id;
   mmTxFrom.position = setupMetaMorphoPosition(
-    event.params.from,
-    event.address
+    event.address,
+    event.params.from
   ).id;
   mmTxFrom.shares = event.params.value.neg();
 
@@ -100,7 +100,7 @@ export function handleTransfer(event: TransferEvent): void {
   mmTxTo.metaMorpho = setupMetaMorpho(event.address).id;
 
   mmTxTo.user = setupUser(event.params.to).id;
-  mmTxTo.position = setupMetaMorphoPosition(event.params.to, event.address).id;
+  mmTxTo.position = setupMetaMorphoPosition(event.address, event.params.to).id;
   mmTxTo.shares = event.params.value;
   mmTxTo.timestamp = event.block.timestamp;
 
@@ -120,7 +120,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   mmTx.metaMorpho = setupMetaMorpho(event.address).id;
 
   mmTx.user = setupUser(event.params.owner).id;
-  mmTx.position = setupMetaMorphoPosition(event.params.owner, event.address).id;
+  mmTx.position = setupMetaMorphoPosition(event.address, event.params.owner).id;
   mmTx.shares = event.params.shares.neg();
   mmTx.timestamp = event.block.timestamp;
 

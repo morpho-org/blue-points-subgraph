@@ -100,7 +100,7 @@ export function setupMetaMorphoPosition(
   userAddress: Bytes,
   metaMorphoAddress: Bytes
 ): MetaMorphoPosition {
-  const mmPositionId = hashBytes(userAddress.concat(metaMorphoAddress));
+  const mmPositionId = hashBytes(metaMorphoAddress.concat(userAddress));
   let metaMorphoPosition = MetaMorphoPosition.load(mmPositionId);
   if (!metaMorphoPosition) {
     metaMorphoPosition = new MetaMorphoPosition(mmPositionId);
