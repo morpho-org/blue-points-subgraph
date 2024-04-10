@@ -44,6 +44,9 @@ type User @entity {
 type Market @entity {
   id: Bytes!
 
+  loanToken: Bytes!
+  collateralToken: Bytes!
+
   totalSupplyShares: BigInt!
   totalBorrowShares: BigInt!
   totalCollateral: BigInt!

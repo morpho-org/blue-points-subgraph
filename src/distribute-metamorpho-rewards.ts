@@ -73,6 +73,7 @@ export function distributeMetaMorphoRewards(mmTx: MetaMorphoTx): void {
   const mmPosition = setupMetaMorphoPosition(mmTx.metaMorpho, mmTx.user);
 
   mmPosition.shares = mmPosition.shares.plus(mmTx.shares);
+  mmPosition.save();
   metaMorpho.totalShares = metaMorpho.totalShares.plus(mmTx.shares);
   metaMorpho.save();
 }

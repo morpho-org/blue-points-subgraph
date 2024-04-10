@@ -29,33 +29,6 @@ export function setupUser(address: Bytes): User {
   return user;
 }
 
-export function setupMarket(marketId: Bytes): Market {
-  let market = Market.load(marketId);
-  if (!market) {
-    market = new Market(marketId);
-    market.totalSupplyShares = BigInt.zero();
-    market.totalBorrowShares = BigInt.zero();
-    market.totalCollateral = BigInt.zero();
-
-    market.totalSupplyShards = BigInt.zero();
-    market.totalBorrowShards = BigInt.zero();
-    market.totalCollateralShards = BigInt.zero();
-
-    market.totalSupplyPoints = BigInt.zero();
-    market.supplyPointsIndex = BigInt.zero();
-    market.totalBorrowPoints = BigInt.zero();
-    market.borrowPointsIndex = BigInt.zero();
-    market.totalCollateralPoints = BigInt.zero();
-    market.collateralPointsIndex = BigInt.zero();
-
-    market.lastUpdate = BigInt.zero(); // This is going to be updated with the first update of the market total supplyShares/borrowShares/collateral
-
-    market.save();
-  }
-
-  return market;
-}
-
 export function setupPosition(marketId: Bytes, userAddress: Bytes): Position {
   const positionId = hashBytes(marketId.concat(userAddress));
   let position = Position.load(positionId);
@@ -97,8 +70,8 @@ export function setupMetaMorpho(address: Bytes): MetaMorpho {
 }
 
 export function setupMetaMorphoPosition(
-  userAddress: Bytes,
-  metaMorphoAddress: Bytes
+  metaMorphoAddress: Bytes,
+  userAddress: Bytes
 ): MetaMorphoPosition {
   const mmPositionId = hashBytes(metaMorphoAddress.concat(userAddress));
   let metaMorphoPosition = MetaMorphoPosition.load(mmPositionId);
