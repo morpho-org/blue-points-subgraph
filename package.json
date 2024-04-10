@@ -1,5 +1,5 @@
 {
-  "name": "morpho-blue-rewards",
+  "name": "@morpho-org/blue-shards-subgraph",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",

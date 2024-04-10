@@ -5,9 +5,9 @@ enum PositionType {
 }
 
 type MorphoFeeRecipient @entity {
-    "Empty bytes"
-    id: Bytes!
-    feeRecipient: User!
+  "Empty bytes"
+  id: Bytes!
+  feeRecipient: User!
 }
 
 type MorphoTx @entity {
@@ -51,16 +51,9 @@ type Market @entity {
   totalBorrowShares: BigInt!
   totalCollateral: BigInt!
 
-    totalSupplyShards: BigInt!
-    totalBorrowShards: BigInt!
-    totalCollateralShards: BigInt!
-
-    totalSupplyPoints: BigInt!
-  supplyPointsIndex: BigInt!
-    totalBorrowPoints: BigInt!
-    borrowPointsIndex: BigInt!
-    totalCollateralPoints: BigInt!
-    collateralPointsIndex: BigInt!
+  totalSupplyShards: BigInt!
+  totalBorrowShards: BigInt!
+  totalCollateralShards: BigInt!
 
   lastUpdate: BigInt!
 
@@ -83,14 +76,6 @@ type Position @entity {
   collateralShards: BigInt!
 
   lastUpdate: BigInt!
-
-  supplyPoints: BigInt!
-  lastSupplyPointsIndex: BigInt!
-  borrowPoints: BigInt!
-  lastBorrowPointsIndex: BigInt!
-  collateralPoints: BigInt!
-  lastCollateralPointsIndex: BigInt!
-
 }
 
 
@@ -102,10 +87,6 @@ type MetaMorpho @entity {
   feeRecipient: User
 
   totalShards: BigInt!
-
-  totalPoints: BigInt!
-  pointsIndex: BigInt!
-
   lastUpdate: BigInt!
 
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "metaMorpho")
@@ -124,10 +105,6 @@ type MetaMorphoPosition @entity {
 
   supplyShards: BigInt!
   lastUpdate: BigInt!
-
-  supplyPoints: BigInt!
-  lastSupplyPointsIndex: BigInt!
-
 
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "position")
 

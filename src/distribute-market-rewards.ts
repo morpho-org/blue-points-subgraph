@@ -2,11 +2,10 @@ import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 
 import { MorphoTx } from "../generated/schema";
 
-import { POINTS_RATE_PER_SECONDS, PRECISION } from "./constants";
 import { getMarket, setupPosition } from "./initializers";
 import { PositionType } from "./utils";
 
-export function computeMarketPoints(marketId: Bytes, timestamp: BigInt): void {
+export function computeMarketShards(marketId: Bytes, timestamp: BigInt): void {
   const market = getMarket(marketId);
 
   const deltaT = timestamp.minus(market.lastUpdate);
@@ -16,82 +15,27 @@ export function computeMarketPoints(marketId: Bytes, timestamp: BigInt): void {
     ]);
   }
 
-  const pointEmitted = deltaT.times(POINTS_RATE_PER_SECONDS);
-  if (market.totalSupplyShares.gt(BigInt.zero())) {
-    market.totalSupplyPoints = market.totalSupplyPoints.plus(pointEmitted);
-    market.supplyPointsIndex = market.supplyPointsIndex.plus(
-      pointEmitted.times(PRECISION).div(market.totalSupplyShares)
-    );
-  }
+  const supplyShardsEmitted = deltaT.times(market.totalSupplyShares);
+  market.totalSupplyShards = market.totalSupplyShards.plus(supplyShardsEmitted);
 
-  if (market.totalBorrowShares.gt(BigInt.zero())) {
-    market.totalBorrowPoints = market.totalBorrowPoints.plus(pointEmitted);
-    market.borrowPointsIndex = market.borrowPointsIndex.plus(
-      pointEmitted.times(PRECISION).div(market.totalBorrowShares)
-    );
-  }
+  const borrowShardsEmitted = deltaT.times(market.totalBorrowShares);
+  market.totalBorrowShards = market.totalBorrowShards.plus(borrowShardsEmitted);
 
-  if (market.totalCollateral.gt(BigInt.zero())) {
-    market.totalCollateralPoints =
-      market.totalCollateralPoints.plus(pointEmitted);
-    market.collateralPointsIndex = market.collateralPointsIndex.plus(
-      pointEmitted.times(PRECISION).div(market.totalCollateral)
-    );
-  }
-
-  if (market.totalSupplyShares.gt(BigInt.zero())) {
-    const supplyShardsEmitted = deltaT.times(market.totalSupplyShares);
-    market.totalSupplyShards =
-      market.totalSupplyShards.plus(supplyShardsEmitted);
-  }
-
-  if (market.totalBorrowShares.gt(BigInt.zero())) {
-    const borrowShardsEmitted = deltaT.times(market.totalBorrowShares);
-    market.totalBorrowShards =
-      market.totalBorrowShards.plus(borrowShardsEmitted);
-  }
-
-  if (market.totalCollateral.gt(BigInt.zero())) {
-    const collateralShardsEmitted = deltaT.times(market.totalCollateral);
-    market.totalCollateralShards = market.totalCollateralShards.plus(
-      collateralShardsEmitted
-    );
-  }
+  const collateralShardsEmitted = deltaT.times(market.totalCollateral);
+  market.totalCollateralShards = market.totalCollateralShards.plus(
+    collateralShardsEmitted
+  );
 
   market.lastUpdate = timestamp;
   market.save();
 }
 
-export function computeUserPoints(
+export function computeUserPositionShards(
   marketId: Bytes,
   userAddress: Bytes,
   timestamp: BigInt
 ): void {
-  const market = getMarket(marketId);
   const position = setupPosition(marketId, userAddress);
-
-  const supplyPointsAccrued = market.supplyPointsIndex
-    .minus(position.lastSupplyPointsIndex)
-    .times(position.supplyShares)
-    .div(PRECISION);
-  position.supplyPoints = position.supplyPoints.plus(supplyPointsAccrued);
-  position.lastSupplyPointsIndex = market.supplyPointsIndex;
-
-  const borrowPointsAccrued = market.borrowPointsIndex
-    .minus(position.lastBorrowPointsIndex)
-    .times(position.borrowShares)
-    .div(PRECISION);
-  position.borrowPoints = position.borrowPoints.plus(borrowPointsAccrued);
-  position.lastBorrowPointsIndex = market.borrowPointsIndex;
-
-  const collateralPointsAccrued = market.collateralPointsIndex
-    .minus(position.lastCollateralPointsIndex)
-    .times(position.collateral)
-    .div(PRECISION);
-  position.collateralPoints = position.collateralPoints.plus(
-    collateralPointsAccrued
-  );
-  position.lastCollateralPointsIndex = market.collateralPointsIndex;
 
   // Account of shards
   const supplyShardsReceived = timestamp
@@ -115,8 +59,8 @@ export function computeUserPoints(
   position.save();
 }
 export function handleMorphoTx(morphoTx: MorphoTx): void {
-  computeMarketPoints(morphoTx.market, morphoTx.timestamp);
-  computeUserPoints(morphoTx.market, morphoTx.user, morphoTx.timestamp);
+  computeMarketShards(morphoTx.market, morphoTx.timestamp);
+  computeUserPositionShards(morphoTx.market, morphoTx.user, morphoTx.timestamp);
 
   const market = getMarket(morphoTx.market);
   const position = setupPosition(morphoTx.market, morphoTx.user);

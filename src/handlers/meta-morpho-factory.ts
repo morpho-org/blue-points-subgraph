@@ -10,9 +10,6 @@ export function handleCreateMetaMorpho(event: CreateMetaMorphoEvent): void {
 
   mmEntity.totalShards = BigInt.zero();
 
-  mmEntity.totalPoints = BigInt.zero();
-  mmEntity.pointsIndex = BigInt.zero();
-
   mmEntity.lastUpdate = event.block.timestamp;
   mmEntity.save();
 

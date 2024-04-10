@@ -236,13 +236,6 @@ export function handleCreateMarket(event: CreateMarketEvent): void {
   market.totalBorrowShards = BigInt.zero();
   market.totalCollateralShards = BigInt.zero();
 
-  market.totalSupplyPoints = BigInt.zero();
-  market.supplyPointsIndex = BigInt.zero();
-  market.totalBorrowPoints = BigInt.zero();
-  market.borrowPointsIndex = BigInt.zero();
-  market.totalCollateralPoints = BigInt.zero();
-  market.collateralPointsIndex = BigInt.zero();
-
   market.lastUpdate = BigInt.zero(); // This is going to be updated with the first update of the market total supplyShares/borrowShares/collateral
 
   market.save();
