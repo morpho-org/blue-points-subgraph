@@ -32,9 +32,6 @@ import {
   createSetFeeRecipientEvent,
 } from "./meta-morpho-utils";
 
-// Tests structure (matchstick-as >=0.5.0)
-// https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
-
 describe("MetaMorpho handlers", () => {
   afterEach(() => {
     clearStore();

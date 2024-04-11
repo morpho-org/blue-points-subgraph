@@ -1,3 +1,5 @@
+import { assert } from "matchstick-as";
+
 import { ethereum, Bytes, BigInt, Address } from "@graphprotocol/graph-ts";
 
 import {
@@ -12,8 +14,20 @@ import {
   Withdraw,
   WithdrawCollateral,
 } from "../generated/Morpho/Morpho";
+import { MorphoTx } from "../generated/schema";
 
 import { newMockEvent } from "./defaults";
+
+export function checkTxEventFields(
+  metaMorphoTx: MorphoTx,
+  event: ethereum.Event
+): void {
+  assert.bigIntEquals(metaMorphoTx!.timestamp, event.block.timestamp);
+  assert.bigIntEquals(metaMorphoTx!.blockNumber, event.block.number);
+  assert.bigIntEquals(metaMorphoTx!.logIndex, event.logIndex);
+  assert.bytesEquals(metaMorphoTx!.txHash, event.transaction.hash);
+  assert.bigIntEquals(metaMorphoTx!.txIndex, event.transaction.index);
+}
 
 export function createAccrueInterestEvent(
   id: Bytes,
