@@ -1,4 +1,4 @@
-name: morpho-blue-subgraph
+name: morpho-blue-shards-subgraph
 
 on:
   push:
@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  builds:
-    name: Build of Morpho Blue Rewards Subgraph
+  build-and-test:
+    name: Build and test the Morpho Blue Shards Subgraph
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -31,6 +31,9 @@ jobs:
 
       - name: Build subgraph
         run: yarn build
+
+      - name: Test subgraph
+        run: yarn test
 
 #  deployment:
 #    name: Deploy to TheGraph hosted service

@@ -2,7 +2,6 @@ import {
   describe,
   test,
   clearStore,
-  beforeAll,
   afterEach,
   assert,
 } from "matchstick-as/assembly";
@@ -37,8 +36,6 @@ import {
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
 
 describe("MetaMorpho handlers", () => {
-  beforeAll(() => {});
-
   afterEach(() => {
     clearStore();
   });
