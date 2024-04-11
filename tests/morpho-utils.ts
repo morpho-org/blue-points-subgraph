@@ -1,34 +1,30 @@
-import { newMockEvent } from "matchstick-as";
-
 import { ethereum, Bytes, BigInt, Address } from "@graphprotocol/graph-ts";
 
 import {
   AccrueInterest,
   Borrow,
   CreateMarket,
-  EnableIrm,
-  EnableLltv,
-  FlashLoan,
-  IncrementNonce,
   Liquidate,
   Repay,
-  SetAuthorization,
-  SetFee,
   SetFeeRecipient,
-  SetOwner,
   Supply,
   SupplyCollateral,
   Withdraw,
   WithdrawCollateral,
 } from "../generated/Morpho/Morpho";
 
+import { newMockEvent } from "./defaults";
+
 export function createAccrueInterestEvent(
   id: Bytes,
   prevBorrowRate: BigInt,
   interest: BigInt,
-  feeShares: BigInt
+  feeShares: BigInt,
+  timestamp: BigInt
 ): AccrueInterest {
-  let accrueInterestEvent = changetype<AccrueInterest>(newMockEvent());
+  const accrueInterestEvent = changetype<AccrueInterest>(
+    newMockEvent(timestamp)
+  );
 
   accrueInterestEvent.parameters = new Array();
 
@@ -63,9 +59,10 @@ export function createBorrowEvent(
   onBehalf: Address,
   receiver: Address,
   assets: BigInt,
-  shares: BigInt
+  shares: BigInt,
+  timestamp: BigInt
 ): Borrow {
-  let borrowEvent = changetype<Borrow>(newMockEvent());
+  const borrowEvent = changetype<Borrow>(newMockEvent(timestamp));
 
   borrowEvent.parameters = new Array();
 
@@ -93,9 +90,11 @@ export function createBorrowEvent(
 
 export function createCreateMarketEvent(
   id: Bytes,
-  marketParams: ethereum.Tuple
+  marketParams: ethereum.Tuple,
+
+  timestamp: BigInt
 ): CreateMarket {
-  let createMarketEvent = changetype<CreateMarket>(newMockEvent());
+  const createMarketEvent = changetype<CreateMarket>(newMockEvent(timestamp));
 
   createMarketEvent.parameters = new Array();
 
@@ -112,80 +111,6 @@ export function createCreateMarketEvent(
   return createMarketEvent;
 }
 
-export function createEnableIrmEvent(irm: Address): EnableIrm {
-  let enableIrmEvent = changetype<EnableIrm>(newMockEvent());
-
-  enableIrmEvent.parameters = new Array();
-
-  enableIrmEvent.parameters.push(
-    new ethereum.EventParam("irm", ethereum.Value.fromAddress(irm))
-  );
-
-  return enableIrmEvent;
-}
-
-export function createEnableLltvEvent(lltv: BigInt): EnableLltv {
-  let enableLltvEvent = changetype<EnableLltv>(newMockEvent());
-
-  enableLltvEvent.parameters = new Array();
-
-  enableLltvEvent.parameters.push(
-    new ethereum.EventParam("lltv", ethereum.Value.fromUnsignedBigInt(lltv))
-  );
-
-  return enableLltvEvent;
-}
-
-export function createFlashLoanEvent(
-  caller: Address,
-  token: Address,
-  assets: BigInt
-): FlashLoan {
-  let flashLoanEvent = changetype<FlashLoan>(newMockEvent());
-
-  flashLoanEvent.parameters = new Array();
-
-  flashLoanEvent.parameters.push(
-    new ethereum.EventParam("caller", ethereum.Value.fromAddress(caller))
-  );
-  flashLoanEvent.parameters.push(
-    new ethereum.EventParam("token", ethereum.Value.fromAddress(token))
-  );
-  flashLoanEvent.parameters.push(
-    new ethereum.EventParam("assets", ethereum.Value.fromUnsignedBigInt(assets))
-  );
-
-  return flashLoanEvent;
-}
-
-export function createIncrementNonceEvent(
-  caller: Address,
-  authorizer: Address,
-  usedNonce: BigInt
-): IncrementNonce {
-  let incrementNonceEvent = changetype<IncrementNonce>(newMockEvent());
-
-  incrementNonceEvent.parameters = new Array();
-
-  incrementNonceEvent.parameters.push(
-    new ethereum.EventParam("caller", ethereum.Value.fromAddress(caller))
-  );
-  incrementNonceEvent.parameters.push(
-    new ethereum.EventParam(
-      "authorizer",
-      ethereum.Value.fromAddress(authorizer)
-    )
-  );
-  incrementNonceEvent.parameters.push(
-    new ethereum.EventParam(
-      "usedNonce",
-      ethereum.Value.fromUnsignedBigInt(usedNonce)
-    )
-  );
-
-  return incrementNonceEvent;
-}
-
 export function createLiquidateEvent(
   id: Bytes,
   caller: Address,
@@ -194,9 +119,10 @@ export function createLiquidateEvent(
   repaidShares: BigInt,
   seizedAssets: BigInt,
   badDebtAssets: BigInt,
-  badDebtShares: BigInt
+  badDebtShares: BigInt,
+  timestamp: BigInt
 ): Liquidate {
-  let liquidateEvent = changetype<Liquidate>(newMockEvent());
+  const liquidateEvent = changetype<Liquidate>(newMockEvent(timestamp));
 
   liquidateEvent.parameters = new Array();
 
@@ -248,9 +174,10 @@ export function createRepayEvent(
   caller: Address,
   onBehalf: Address,
   assets: BigInt,
-  shares: BigInt
+  shares: BigInt,
+  timestamp: BigInt
 ): Repay {
-  let repayEvent = changetype<Repay>(newMockEvent());
+  const repayEvent = changetype<Repay>(newMockEvent(timestamp));
 
   repayEvent.parameters = new Array();
 
@@ -273,60 +200,13 @@ export function createRepayEvent(
   return repayEvent;
 }
 
-export function createSetAuthorizationEvent(
-  caller: Address,
-  authorizer: Address,
-  authorized: Address,
-  newIsAuthorized: boolean
-): SetAuthorization {
-  let setAuthorizationEvent = changetype<SetAuthorization>(newMockEvent());
-
-  setAuthorizationEvent.parameters = new Array();
-
-  setAuthorizationEvent.parameters.push(
-    new ethereum.EventParam("caller", ethereum.Value.fromAddress(caller))
-  );
-  setAuthorizationEvent.parameters.push(
-    new ethereum.EventParam(
-      "authorizer",
-      ethereum.Value.fromAddress(authorizer)
-    )
-  );
-  setAuthorizationEvent.parameters.push(
-    new ethereum.EventParam(
-      "authorized",
-      ethereum.Value.fromAddress(authorized)
-    )
-  );
-  setAuthorizationEvent.parameters.push(
-    new ethereum.EventParam(
-      "newIsAuthorized",
-      ethereum.Value.fromBoolean(newIsAuthorized)
-    )
-  );
-
-  return setAuthorizationEvent;
-}
-
-export function createSetFeeEvent(id: Bytes, newFee: BigInt): SetFee {
-  let setFeeEvent = changetype<SetFee>(newMockEvent());
-
-  setFeeEvent.parameters = new Array();
-
-  setFeeEvent.parameters.push(
-    new ethereum.EventParam("id", ethereum.Value.fromFixedBytes(id))
-  );
-  setFeeEvent.parameters.push(
-    new ethereum.EventParam("newFee", ethereum.Value.fromUnsignedBigInt(newFee))
-  );
-
-  return setFeeEvent;
-}
-
 export function createSetFeeRecipientEvent(
-  newFeeRecipient: Address
+  newFeeRecipient: Address,
+  timestamp: BigInt
 ): SetFeeRecipient {
-  let setFeeRecipientEvent = changetype<SetFeeRecipient>(newMockEvent());
+  const setFeeRecipientEvent = changetype<SetFeeRecipient>(
+    newMockEvent(timestamp)
+  );
 
   setFeeRecipientEvent.parameters = new Array();
 
@@ -340,26 +220,15 @@ export function createSetFeeRecipientEvent(
   return setFeeRecipientEvent;
 }
 
-export function createSetOwnerEvent(newOwner: Address): SetOwner {
-  let setOwnerEvent = changetype<SetOwner>(newMockEvent());
-
-  setOwnerEvent.parameters = new Array();
-
-  setOwnerEvent.parameters.push(
-    new ethereum.EventParam("newOwner", ethereum.Value.fromAddress(newOwner))
-  );
-
-  return setOwnerEvent;
-}
-
 export function createSupplyEvent(
   id: Bytes,
   caller: Address,
   onBehalf: Address,
   assets: BigInt,
-  shares: BigInt
+  shares: BigInt,
+  timestamp: BigInt
 ): Supply {
-  let supplyEvent = changetype<Supply>(newMockEvent());
+  const supplyEvent = changetype<Supply>(newMockEvent(timestamp));
 
   supplyEvent.parameters = new Array();
 
@@ -386,9 +255,12 @@ export function createSupplyCollateralEvent(
   id: Bytes,
   caller: Address,
   onBehalf: Address,
-  assets: BigInt
+  assets: BigInt,
+  timestamp: BigInt
 ): SupplyCollateral {
-  let supplyCollateralEvent = changetype<SupplyCollateral>(newMockEvent());
+  const supplyCollateralEvent = changetype<SupplyCollateral>(
+    newMockEvent(timestamp)
+  );
 
   supplyCollateralEvent.parameters = new Array();
 
@@ -414,9 +286,10 @@ export function createWithdrawEvent(
   onBehalf: Address,
   receiver: Address,
   assets: BigInt,
-  shares: BigInt
+  shares: BigInt,
+  timestamp: BigInt
 ): Withdraw {
-  let withdrawEvent = changetype<Withdraw>(newMockEvent());
+  const withdrawEvent = changetype<Withdraw>(newMockEvent(timestamp));
 
   withdrawEvent.parameters = new Array();
 
@@ -447,9 +320,12 @@ export function createWithdrawCollateralEvent(
   caller: Address,
   onBehalf: Address,
   receiver: Address,
-  assets: BigInt
+  assets: BigInt,
+  timestamp: BigInt
 ): WithdrawCollateral {
-  let withdrawCollateralEvent = changetype<WithdrawCollateral>(newMockEvent());
+  const withdrawCollateralEvent = changetype<WithdrawCollateral>(
+    newMockEvent(timestamp)
+  );
 
   withdrawCollateralEvent.parameters = new Array();
 

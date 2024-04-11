@@ -1,8 +1,8 @@
-import { newMockEvent } from "matchstick-as";
-
 import { ethereum, Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 import { CreateMetaMorpho } from "../generated/MetaMorphoFactory/MetaMorphoFactory";
+
+import { newMockEvent } from "./defaults";
 
 export function createCreateMetaMorphoEvent(
   metaMorpho: Address,
@@ -12,9 +12,12 @@ export function createCreateMetaMorphoEvent(
   asset: Address,
   name: string,
   symbol: string,
-  salt: Bytes
+  salt: Bytes,
+  timestamp: BigInt
 ): CreateMetaMorpho {
-  let createMetaMorphoEvent = changetype<CreateMetaMorpho>(newMockEvent());
+  const createMetaMorphoEvent = changetype<CreateMetaMorpho>(
+    newMockEvent(timestamp)
+  );
 
   createMetaMorphoEvent.parameters = new Array();
 

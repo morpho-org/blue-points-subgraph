@@ -5,10 +5,11 @@ import {
   clearStore,
   beforeAll,
   afterAll,
-} from "matchstick-as/assembly/index";
+} from "matchstick-as/assembly";
 
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
+import { MetaMorpho } from "../generated/schema";
 import { handleCreateMetaMorpho } from "../src/handlers/meta-morpho-factory";
 
 import { createCreateMetaMorphoEvent } from "./meta-morpho-factory-utils";
@@ -18,23 +19,24 @@ import { createCreateMetaMorphoEvent } from "./meta-morpho-factory-utils";
 
 describe("Describe entity assertions", () => {
   beforeAll(() => {
-    let metaMorpho = Address.fromString(
+    const metaMorpho = Address.fromString(
       "0x0000000000000000000000000000000000000001"
     );
-    let caller = Address.fromString(
+    const caller = Address.fromString(
       "0x0000000000000000000000000000000000000001"
     );
-    let initialOwner = Address.fromString(
+    const initialOwner = Address.fromString(
       "0x0000000000000000000000000000000000000001"
     );
-    let initialTimelock = BigInt.fromI32(234);
-    let asset = Address.fromString(
+    const initialTimelock = BigInt.fromI32(234);
+    const asset = Address.fromString(
       "0x0000000000000000000000000000000000000001"
     );
-    let name = "Example string value";
-    let symbol = "Example string value";
-    let salt = Bytes.fromI32(1234567890);
-    let newCreateMetaMorphoEvent = createCreateMetaMorphoEvent(
+    const name = "Example string value";
+    const symbol = "Example string value";
+    const salt = Bytes.fromI32(1234567890);
+    const timestamp = BigInt.fromI32(1);
+    const newCreateMetaMorphoEvent = createCreateMetaMorphoEvent(
       metaMorpho,
       caller,
       initialOwner,
@@ -42,7 +44,8 @@ describe("Describe entity assertions", () => {
       asset,
       name,
       symbol,
-      salt
+      salt,
+      timestamp
     );
     handleCreateMetaMorpho(newCreateMetaMorphoEvent);
   });
@@ -51,63 +54,16 @@ describe("Describe entity assertions", () => {
     clearStore();
   });
 
-  // For more test scenarios, see:
-  // https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
-
   test("CreateMetaMorpho created and stored", () => {
-    assert.entityCount("CreateMetaMorpho", 1);
-
-    // 0xa16081f360e3847006db660bae1c6d1b2e17ec2a is the default address used in newMockEvent() function
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "metaMorpho",
-      "0x0000000000000000000000000000000000000001"
-    );
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "caller",
-      "0x0000000000000000000000000000000000000001"
-    );
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "initialOwner",
-      "0x0000000000000000000000000000000000000001"
-    );
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "initialTimelock",
-      "234"
-    );
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "asset",
-      "0x0000000000000000000000000000000000000001"
-    );
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "name",
-      "Example string value"
-    );
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "symbol",
-      "Example string value"
-    );
-    assert.fieldEquals(
-      "CreateMetaMorpho",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "salt",
-      "1234567890"
+    assert.entityCount("MetaMorpho", 1);
+    const metaMorpho = MetaMorpho.load(
+      Bytes.fromHexString("0x0000000000000000000000000000000000000001")
     );
 
-    // More assert options:
-    // https://thegraph.com/docs/en/developer/matchstick/#asserts
+    assert.assertNotNull(metaMorpho);
+    assert.bigIntEquals(metaMorpho!.lastUpdate, BigInt.fromI32(1));
+    assert.bigIntEquals(metaMorpho!.totalShards, BigInt.fromI32(0));
+    assert.bigIntEquals(metaMorpho!.totalShares, BigInt.fromI32(0));
+    // assert.assertNull(metaMorpho!.feeRecipient);
   });
 });
