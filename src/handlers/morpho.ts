@@ -249,7 +249,7 @@ export function handleWithdrawCollateral(event: WithdrawCollateralEvent): void {
       event,
       market.collateralToken,
       event.params.onBehalf,
-      event.params.caller,
+      event.params.receiver,
       event.params.assets
     );
   }

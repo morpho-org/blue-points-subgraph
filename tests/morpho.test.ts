@@ -12,6 +12,7 @@ import { Bytes, BigInt, Address } from "@graphprotocol/graph-ts";
 import {
   Market,
   MetaMorpho,
+  MetaMorphoTx,
   MorphoFeeRecipient,
   MorphoTx,
 } from "../generated/schema";
@@ -929,9 +930,11 @@ describe("MetaMorpho as collateral", () => {
     initialMetaMorphoPosition.lastUpdate = BigInt.fromI32(1);
     initialMetaMorphoPosition.save();
   });
+
   afterEach(() => {
     clearStore();
   });
+
   test("SupplyCollateral with a metaMorpho as collateral, for itself", () => {
     const id = Bytes.fromI32(1234567890);
     const onBehalf = Address.fromString(
@@ -955,5 +958,189 @@ describe("MetaMorpho as collateral", () => {
 
     const morphoTx = MorphoTx.load(generateLogId(newSupplyCollateralEvent));
     assert.assertNotNull(morphoTx);
+  });
+
+  test("SupplyCollateral with a metaMorpho as collateral, on behalf", () => {
+    const id = Bytes.fromI32(1234567890);
+
+    const mmAddress = Address.fromString(
+      "0x1111000000000000000000000000000000000000"
+    );
+    const caller = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+
+    const onBehalf = Address.fromString(
+      "0x0000000000000000000000000000000000000002"
+    );
+
+    const assets = BigInt.fromI32(100);
+    const timestamp = BigInt.fromI32(3);
+    const newSupplyCollateralEvent = createSupplyCollateralEvent(
+      id,
+      caller,
+      onBehalf,
+      assets,
+      timestamp
+    );
+    handleSupplyCollateral(newSupplyCollateralEvent);
+
+    assert.entityCount("MorphoTx", 1);
+    assert.entityCount("MetaMorphoTx", 2);
+    assert.entityCount("MetaMorphoPosition", 2);
+
+    const morphoTx = MorphoTx.load(generateLogId(newSupplyCollateralEvent));
+    assert.assertNotNull(morphoTx);
+
+    const firstMetaMorphoTx = MetaMorphoTx.load(
+      generateLogId(newSupplyCollateralEvent).concat(Bytes.fromI32(1 as i32))
+    );
+    assert.assertNotNull(firstMetaMorphoTx);
+    assert.bytesEquals(firstMetaMorphoTx!.user, caller);
+    assert.bytesEquals(firstMetaMorphoTx!.metaMorpho, mmAddress);
+    assert.bigIntEquals(firstMetaMorphoTx!.shares, assets.neg());
+
+    const secondMetaMorphoTx = MetaMorphoTx.load(
+      generateLogId(newSupplyCollateralEvent).concat(Bytes.fromI32(2 as i32))
+    );
+    assert.assertNotNull(secondMetaMorphoTx);
+    assert.bytesEquals(secondMetaMorphoTx!.user, onBehalf);
+    assert.bytesEquals(secondMetaMorphoTx!.metaMorpho, mmAddress);
+    assert.bigIntEquals(secondMetaMorphoTx!.shares, assets);
+
+    const position = setupMetaMorphoPosition(mmAddress, onBehalf);
+    assert.assertNotNull(position);
+    assert.bytesEquals(position.user, onBehalf);
+    assert.bytesEquals(position.metaMorpho, mmAddress);
+    assert.bigIntEquals(position.shares, assets);
+    assert.bigIntEquals(position.supplyShards, BigInt.zero());
+
+    const callerPosition = setupMetaMorphoPosition(mmAddress, caller);
+    assert.assertNotNull(callerPosition);
+    assert.bytesEquals(callerPosition.user, caller);
+    assert.bytesEquals(callerPosition.metaMorpho, mmAddress);
+    assert.bigIntEquals(callerPosition.shares, BigInt.zero());
+  });
+
+  test("WithdrawCollateral with a metaMorpho as collateral, for itself", () => {
+    const id = Bytes.fromI32(1234567890);
+    const onBehalf = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+    const caller = onBehalf;
+
+    const assets = BigInt.fromI32(100);
+    const timestamp = BigInt.fromI32(3);
+
+    const marketPosition = setupPosition(id, onBehalf);
+    marketPosition.collateral = BigInt.fromI32(100);
+    marketPosition.lastUpdate = BigInt.fromI32(1);
+    marketPosition.save();
+
+    const newWithdrawCollateralEvent = createWithdrawCollateralEvent(
+      id,
+      caller,
+      onBehalf,
+      onBehalf,
+      assets,
+      timestamp
+    );
+    handleWithdrawCollateral(newWithdrawCollateralEvent);
+
+    assert.entityCount("MorphoTx", 1);
+    assert.entityCount("MetaMorphoTx", 0);
+    assert.entityCount("MetaMorphoPosition", 1);
+
+    const morphoTx = MorphoTx.load(generateLogId(newWithdrawCollateralEvent));
+
+    assert.assertNotNull(morphoTx);
+    assert.stringEquals(morphoTx!.type, PositionType.COLLATERAL);
+    assert.bigIntEquals(morphoTx!.shares, assets.neg());
+    assert.bytesEquals(morphoTx!.user, onBehalf);
+    assert.bytesEquals(morphoTx!.market, id);
+    checkTxEventFields(morphoTx!, newWithdrawCollateralEvent);
+
+    const position = setupPosition(id, onBehalf);
+    assert.assertNotNull(position);
+    assert.bytesEquals(position.user, onBehalf);
+    assert.bytesEquals(position.market, id);
+    assert.bigIntEquals(position.collateral, BigInt.zero());
+    assert.bigIntEquals(position.supplyShares, BigInt.zero());
+    assert.bigIntEquals(position.borrowShares, BigInt.zero());
+
+    const metaMorphoPosition = setupMetaMorphoPosition(
+      Bytes.fromHexString("0x1111000000000000000000000000000000000000"),
+      onBehalf
+    );
+    assert.assertNotNull(metaMorphoPosition);
+    assert.bytesEquals(metaMorphoPosition.user, onBehalf);
+    // Shares should not changes
+    assert.bigIntEquals(metaMorphoPosition.shares, BigInt.fromI32(100));
+  });
+  test("WithdrawCollateral with a metaMorpho as collateral, for itself", () => {
+    const id = Bytes.fromI32(1234567890);
+    const onBehalf = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+    const receiver = Address.fromString(
+      "0x0000000000000000000000000000000000000002"
+    );
+    const caller = onBehalf;
+
+    const assets = BigInt.fromI32(100);
+    const timestamp = BigInt.fromI32(3);
+
+    const marketPosition = setupPosition(id, onBehalf);
+    marketPosition.collateral = BigInt.fromI32(100);
+    marketPosition.lastUpdate = BigInt.fromI32(1);
+    marketPosition.save();
+
+    const newWithdrawCollateralEvent = createWithdrawCollateralEvent(
+      id,
+      caller,
+      onBehalf,
+      receiver,
+      assets,
+      timestamp
+    );
+    handleWithdrawCollateral(newWithdrawCollateralEvent);
+
+    assert.entityCount("MorphoTx", 1);
+    assert.entityCount("MetaMorphoTx", 2);
+    assert.entityCount("MetaMorphoPosition", 2);
+
+    const morphoTx = MorphoTx.load(generateLogId(newWithdrawCollateralEvent));
+
+    assert.assertNotNull(morphoTx);
+    assert.stringEquals(morphoTx!.type, PositionType.COLLATERAL);
+    assert.bigIntEquals(morphoTx!.shares, assets.neg());
+    assert.bytesEquals(morphoTx!.user, onBehalf);
+    assert.bytesEquals(morphoTx!.market, id);
+    checkTxEventFields(morphoTx!, newWithdrawCollateralEvent);
+
+    const position = setupPosition(id, onBehalf);
+    assert.assertNotNull(position);
+    assert.bytesEquals(position.user, onBehalf);
+    assert.bytesEquals(position.market, id);
+    assert.bigIntEquals(position.collateral, BigInt.zero());
+    assert.bigIntEquals(position.supplyShares, BigInt.zero());
+    assert.bigIntEquals(position.borrowShares, BigInt.zero());
+
+    const receiverMetaMorphoPosition = setupMetaMorphoPosition(
+      Bytes.fromHexString("0x1111000000000000000000000000000000000000"),
+      receiver
+    );
+    assert.assertNotNull(receiverMetaMorphoPosition);
+    assert.bytesEquals(receiverMetaMorphoPosition.user, receiver);
+    assert.bigIntEquals(receiverMetaMorphoPosition.shares, assets);
+    assert.bigIntEquals(receiverMetaMorphoPosition.supplyShards, BigInt.zero());
+
+    const onBehalfPosition = setupMetaMorphoPosition(
+      Bytes.fromHexString("0x1111000000000000000000000000000000000000"),
+      onBehalf
+    );
+    assert.assertNotNull(onBehalfPosition);
+    assert.bytesEquals(onBehalfPosition.user, onBehalf);
+    assert.bigIntEquals(onBehalfPosition.shares, BigInt.zero());
   });
 });
