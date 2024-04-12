@@ -35,49 +35,49 @@ jobs:
       - name: Test subgraph
         run: yarn test
 
-#  deployment:
-#    name: Deploy to TheGraph hosted service
-#    environment:
-#      name: Hosted Service
-#      url: https://thegraph.com/hosted-service/subgraph/morpho-association/morpho-blue-rewards-points
-#    needs: builds
-#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - name: Setup node
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version-file: .nvmrc
-#          cache: yarn
-#
-#      - name: Install dependencies
-#        run: yarn --frozen-lockfile
-#
-#      - name: Generate types
-#        run: yarn codegen
-#
-#      - name: Deploy to the hosted service
-#        run: yarn graph auth --product hosted-service ${{ secrets.HOSTED_SERVICE_KEY }} && yarn deploy:hs:prod
-#
-#  release:
-#    name: Create new release
-#    runs-on: ubuntu-latest
-#    needs: deployment
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - name: Setup Node
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version-file: .nvmrc
-#          cache: yarn
-#
-#      - name: Install dependencies
-#        run: yarn --frozen-lockfile
-#
-#      - name: Publish release
-#        run: npx semantic-release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  deployment:
+    name: Deploy to TheGraph hosted service
+    environment:
+      name: Hosted Service
+      url: https://thegraph.com/hosted-service/subgraph/morpho-association/morpho-blue-rewards-points
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Generate types
+        run: yarn codegen
+
+      - name: Deploy to the hosted service
+        run: yarn graph auth --product hosted-service ${{ secrets.HOSTED_SERVICE_KEY }} && yarn deploy:hs:prod
+
+  release:
+    name: Create new release
+    runs-on: ubuntu-latest
+    needs: deployment
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Publish release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

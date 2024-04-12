@@ -9,7 +9,12 @@ import {
 
 import { Bytes, BigInt, Address } from "@graphprotocol/graph-ts";
 
-import { Market, MorphoFeeRecipient, MorphoTx } from "../generated/schema";
+import {
+  Market,
+  MetaMorpho,
+  MorphoFeeRecipient,
+  MorphoTx,
+} from "../generated/schema";
 import {
   handleAccrueInterest,
   handleBorrow,
@@ -19,7 +24,7 @@ import {
   handleWithdraw,
   handleWithdrawCollateral,
 } from "../src/handlers/morpho";
-import { setupPosition } from "../src/initializers";
+import { setupMetaMorphoPosition, setupPosition } from "../src/initializers";
 import { generateLogId, PositionType } from "../src/utils";
 
 import {
@@ -40,7 +45,7 @@ describe("Morpho handlers", () => {
   beforeEach(() => {
     const market = new Market(Bytes.fromI32(1234567890));
     market.collateralToken = Bytes.fromHexString(
-      "0xA16081F360e3847006dB660bae1c6d1b2e17eC2A"
+      "0x1111000000000000000000000000000000000000"
     );
     market.loanToken = Bytes.fromHexString(
       "0xA16081F360e3847006dB660bae1c6d1b2e17eC2A"
@@ -879,5 +884,76 @@ describe("Morpho handlers", () => {
         )
       )
     );
+  });
+});
+
+describe("MetaMorpho as collateral", () => {
+  beforeEach(() => {
+    const market = new Market(Bytes.fromI32(1234567890));
+    market.collateralToken = Bytes.fromHexString(
+      "0x1111000000000000000000000000000000000000"
+    );
+    market.loanToken = Bytes.fromHexString(
+      "0xA16081F360e3847006dB660bae1c6d1b2e17eC2A"
+    );
+    market.lastUpdate = BigInt.fromI32(1);
+    market.totalSupplyShares = BigInt.zero();
+    market.totalBorrowShares = BigInt.zero();
+    market.totalCollateral = BigInt.zero();
+    market.totalSupplyShards = BigInt.zero();
+    market.totalBorrowShards = BigInt.zero();
+    market.totalCollateralShards = BigInt.zero();
+
+    market.save();
+
+    //We create a vault
+    const metaMorpho = new MetaMorpho(
+      Bytes.fromHexString("0x1111000000000000000000000000000000000000")
+    );
+    metaMorpho.totalShares = BigInt.fromI32(100);
+    metaMorpho.totalShards = BigInt.fromI32(100);
+    metaMorpho.lastUpdate = BigInt.fromI32(1);
+
+    metaMorpho.save();
+
+    // We create a position for the user
+    const caller = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+
+    const initialMetaMorphoPosition = setupMetaMorphoPosition(
+      metaMorpho.id,
+      caller
+    );
+    initialMetaMorphoPosition.shares = BigInt.fromI32(100);
+    initialMetaMorphoPosition.lastUpdate = BigInt.fromI32(1);
+    initialMetaMorphoPosition.save();
+  });
+  afterEach(() => {
+    clearStore();
+  });
+  test("SupplyCollateral with a metaMorpho as collateral, for itself", () => {
+    const id = Bytes.fromI32(1234567890);
+    const onBehalf = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+    const caller = onBehalf;
+
+    const assets = BigInt.fromI32(200);
+    const timestamp = BigInt.fromI32(3);
+    const newSupplyCollateralEvent = createSupplyCollateralEvent(
+      id,
+      caller,
+      onBehalf,
+      assets,
+      timestamp
+    );
+    handleSupplyCollateral(newSupplyCollateralEvent);
+
+    assert.entityCount("MorphoTx", 1);
+    assert.entityCount("MetaMorphoTx", 0);
+
+    const morphoTx = MorphoTx.load(generateLogId(newSupplyCollateralEvent));
+    assert.assertNotNull(morphoTx);
   });
 });
