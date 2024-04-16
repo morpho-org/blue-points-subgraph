@@ -41,9 +41,9 @@ export function setupPosition(marketId: Bytes, userAddress: Bytes): Position {
     position.borrowShares = BigInt.zero();
     position.collateral = BigInt.zero();
 
-    position.supplyShards = BigInt.zero();
-    position.borrowShards = BigInt.zero();
-    position.collateralShards = BigInt.zero();
+    position.supplyPoints = BigInt.zero();
+    position.borrowPoints = BigInt.zero();
+    position.collateralPoints = BigInt.zero();
 
     position.lastUpdate = BigInt.zero(); // will be modified before adding any shares.
 
@@ -77,7 +77,7 @@ export function setupMetaMorphoPosition(
 
     metaMorphoPosition.shares = BigInt.zero();
 
-    metaMorphoPosition.supplyShards = BigInt.zero();
+    metaMorphoPosition.supplyPoints = BigInt.zero();
     metaMorphoPosition.lastUpdate = BigInt.zero();
 
     metaMorphoPosition.save();

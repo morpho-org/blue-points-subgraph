@@ -51,9 +51,9 @@ type Market @entity {
   totalBorrowShares: BigInt!
   totalCollateral: BigInt!
 
-  totalSupplyShards: BigInt!
-  totalBorrowShards: BigInt!
-  totalCollateralShards: BigInt!
+  totalSupplyPoints: BigInt!
+  totalBorrowPoints: BigInt!
+  totalCollateralPoints: BigInt!
 
   lastUpdate: BigInt!
 
@@ -71,9 +71,9 @@ type Position @entity {
   borrowShares: BigInt!
   collateral: BigInt!
 
-  supplyShards: BigInt!
-  borrowShards: BigInt!
-  collateralShards: BigInt!
+  supplyPoints: BigInt!
+  borrowPoints: BigInt!
+  collateralPoints: BigInt!
 
   lastUpdate: BigInt!
 }
@@ -86,7 +86,7 @@ type MetaMorpho @entity {
 
   feeRecipient: User
 
-  totalShards: BigInt!
+  totalPoints: BigInt!
   lastUpdate: BigInt!
 
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "metaMorpho")
@@ -103,7 +103,7 @@ type MetaMorphoPosition @entity {
 
   shares: BigInt!
 
-  supplyShards: BigInt!
+  supplyPoints: BigInt!
   lastUpdate: BigInt!
 
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "position")

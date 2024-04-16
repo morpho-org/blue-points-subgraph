@@ -45,7 +45,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xa16081f360e3847006db660bae1c6d1b2e17ec2a")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
 
     metaMorpho.save();
@@ -73,7 +73,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.feeRecipient = feeRecipient;
 
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
 
     metaMorpho.save();
@@ -100,7 +100,7 @@ describe("MetaMorpho handlers", () => {
     );
     metaMorpho.feeRecipient = feeRecipient;
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
 
     metaMorpho.save();
@@ -134,7 +134,7 @@ describe("MetaMorpho handlers", () => {
     assert.bytesEquals(position!.user, feeRecipient);
     assert.bytesEquals(position!.metaMorpho, metaMorpho.id);
     assert.bigIntEquals(position!.shares, feeShares);
-    assert.bigIntEquals(position!.supplyShards, BigInt.zero());
+    assert.bigIntEquals(position!.supplyPoints, BigInt.zero());
 
     checkTxEventFields(metaMorphoTx!, newAccrueFeeEvent);
   });
@@ -144,7 +144,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(0);
+    metaMorpho.totalPoints = BigInt.fromI32(0);
     metaMorpho.totalShares = BigInt.fromI32(123);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
@@ -184,7 +184,7 @@ describe("MetaMorpho handlers", () => {
     assert.bytesEquals(position!.user, owner);
     assert.bytesEquals(position!.metaMorpho, metaMorpho.id);
     assert.bigIntEquals(position!.shares, shares);
-    assert.bigIntEquals(position!.supplyShards, BigInt.zero());
+    assert.bigIntEquals(position!.supplyPoints, BigInt.zero());
     assert.bigIntEquals(position!.lastUpdate, timestamp);
 
     const metaMorphoAfterTx = MetaMorpho.load(metaMorpho.id);
@@ -195,8 +195,8 @@ describe("MetaMorpho handlers", () => {
       metaMorpho.totalShares.plus(shares)
     );
     assert.bigIntEquals(
-      metaMorphoAfterTx!.totalShards,
-      metaMorpho.totalShards.plus(
+      metaMorphoAfterTx!.totalPoints,
+      metaMorpho.totalPoints.plus(
         metaMorpho.totalShares.times(timestamp.minus(metaMorpho.lastUpdate))
       )
     );
@@ -207,7 +207,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(100);
+    metaMorpho.totalPoints = BigInt.fromI32(100);
     metaMorpho.totalShares = BigInt.fromI32(123);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
@@ -253,11 +253,11 @@ describe("MetaMorpho handlers", () => {
     assert.bytesEquals(positionAfterTx!.metaMorpho, metaMorpho.id);
     assert.bigIntEquals(positionAfterTx!.shares, shares.plus(position.shares));
     assert.bigIntEquals(
-      positionAfterTx!.supplyShards,
+      positionAfterTx!.supplyPoints,
       timestamp
         .minus(position.lastUpdate)
         .times(position.shares)
-        .plus(position.supplyShards)
+        .plus(position.supplyPoints)
     );
 
     assert.bigIntEquals(positionAfterTx!.lastUpdate, timestamp);
@@ -270,8 +270,8 @@ describe("MetaMorpho handlers", () => {
       metaMorpho.totalShares.plus(shares)
     );
     assert.bigIntEquals(
-      metaMorphoAfterTx!.totalShards,
-      metaMorpho.totalShards.plus(
+      metaMorphoAfterTx!.totalPoints,
+      metaMorpho.totalPoints.plus(
         metaMorpho.totalShares.times(timestamp.minus(metaMorpho.lastUpdate))
       )
     );
@@ -282,7 +282,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
@@ -332,7 +332,7 @@ describe("MetaMorpho handlers", () => {
     assert.bytesEquals(mmPosition!.user, owner);
     assert.bytesEquals(mmPosition!.metaMorpho, metaMorpho.id);
     assert.bigIntEquals(mmPosition!.shares, BigInt.fromI32(0));
-    assert.bigIntEquals(mmPosition!.supplyShards, BigInt.fromI32(246));
+    assert.bigIntEquals(mmPosition!.supplyPoints, BigInt.fromI32(246));
     assert.bigIntEquals(mmPosition!.lastUpdate, timestamp);
 
     const metaMorphoAfterTx = MetaMorpho.load(metaMorpho.id);
@@ -340,7 +340,7 @@ describe("MetaMorpho handlers", () => {
     assert.bigIntEquals(metaMorphoAfterTx!.lastUpdate, timestamp);
     assert.bigIntEquals(metaMorphoAfterTx!.totalShares, BigInt.zero());
     assert.bigIntEquals(
-      metaMorphoAfterTx!.totalShards,
+      metaMorphoAfterTx!.totalPoints,
       BigInt.fromI32(123 + 246)
     );
   });
@@ -350,7 +350,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
@@ -378,7 +378,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
@@ -406,7 +406,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
@@ -466,8 +466,8 @@ describe("MetaMorpho handlers", () => {
     assert.bytesEquals(positionFrom!.metaMorpho, metaMorpho.id);
     assert.bigIntEquals(positionFrom!.shares, BigInt.zero());
     assert.bigIntEquals(
-      positionFrom!.supplyShards,
-      initialSenderPosition.supplyShards.plus(
+      positionFrom!.supplyPoints,
+      initialSenderPosition.supplyPoints.plus(
         timestamp.minus(initialSenderPosition.lastUpdate).times(shares)
       )
     );
@@ -480,7 +480,7 @@ describe("MetaMorpho handlers", () => {
     assert.bytesEquals(positionTo!.user, receiver);
     assert.bytesEquals(positionTo!.metaMorpho, metaMorpho.id);
     assert.bigIntEquals(positionTo!.shares, shares);
-    assert.bigIntEquals(positionTo!.supplyShards, BigInt.zero());
+    assert.bigIntEquals(positionTo!.supplyPoints, BigInt.zero());
     assert.bigIntEquals(positionTo!.lastUpdate, timestamp);
 
     const metaMorphoAfterTx = MetaMorpho.load(metaMorpho.id);
@@ -488,8 +488,8 @@ describe("MetaMorpho handlers", () => {
     assert.bigIntEquals(metaMorphoAfterTx!.lastUpdate, timestamp);
     assert.bigIntEquals(metaMorphoAfterTx!.totalShares, metaMorpho.totalShares);
     assert.bigIntEquals(
-      metaMorphoAfterTx!.totalShards,
-      metaMorpho.totalShards.plus(
+      metaMorphoAfterTx!.totalPoints,
+      metaMorpho.totalPoints.plus(
         timestamp.minus(metaMorpho.lastUpdate).times(metaMorpho.totalShares)
       )
     );
@@ -500,7 +500,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(246);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
@@ -568,8 +568,8 @@ describe("MetaMorpho handlers", () => {
     assert.bytesEquals(positionFrom!.metaMorpho, metaMorpho.id);
     assert.bigIntEquals(positionFrom!.shares, BigInt.zero());
     assert.bigIntEquals(
-      positionFrom!.supplyShards,
-      initialSenderPosition.supplyShards.plus(
+      positionFrom!.supplyPoints,
+      initialSenderPosition.supplyPoints.plus(
         timestamp.minus(initialSenderPosition.lastUpdate).times(shares)
       )
     );
@@ -586,8 +586,8 @@ describe("MetaMorpho handlers", () => {
       initialReceiverPosition.shares.plus(shares)
     );
     assert.bigIntEquals(
-      positionTo!.supplyShards,
-      initialReceiverPosition.supplyShards.plus(
+      positionTo!.supplyPoints,
+      initialReceiverPosition.supplyPoints.plus(
         timestamp.minus(initialReceiverPosition.lastUpdate).times(shares)
       )
     );
@@ -598,8 +598,8 @@ describe("MetaMorpho handlers", () => {
     assert.bigIntEquals(metaMorphoAfterTx!.lastUpdate, timestamp);
     assert.bigIntEquals(metaMorphoAfterTx!.totalShares, metaMorpho.totalShares);
     assert.bigIntEquals(
-      metaMorphoAfterTx!.totalShards,
-      metaMorpho.totalShards.plus(
+      metaMorphoAfterTx!.totalPoints,
+      metaMorpho.totalPoints.plus(
         timestamp.minus(metaMorpho.lastUpdate).times(metaMorpho.totalShares)
       )
     );
@@ -610,7 +610,7 @@ describe("MetaMorpho handlers", () => {
       Bytes.fromHexString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A")
     );
     metaMorpho.lastUpdate = BigInt.fromI32(1);
-    metaMorpho.totalShards = BigInt.fromI32(123);
+    metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();

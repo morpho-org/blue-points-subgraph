@@ -8,7 +8,7 @@ export function handleCreateMetaMorpho(event: CreateMetaMorphoEvent): void {
   const mmEntity = new MetaMorphoEntity(event.params.metaMorpho);
   mmEntity.totalShares = BigInt.zero();
 
-  mmEntity.totalShards = BigInt.zero();
+  mmEntity.totalPoints = BigInt.zero();
 
   mmEntity.lastUpdate = event.block.timestamp;
   mmEntity.save();

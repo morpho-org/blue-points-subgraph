@@ -4,11 +4,11 @@ import { MetaMorphoTx } from "../generated/schema";
 
 import { setupMetaMorpho, setupMetaMorphoPosition } from "./initializers";
 
-export function computeMetaMorphoShards(
+export function computeMetaMorphoPoints(
   mmAddress: Bytes,
   timestamp: BigInt
 ): void {
-  // Here, we compute the number of shards and the number of points that the user has accrued.
+  // Here, we compute the number of points and the number of points that the user has accrued.
 
   const metaMorpho = setupMetaMorpho(mmAddress);
 
@@ -19,14 +19,14 @@ export function computeMetaMorphoShards(
     ]);
   }
 
-  const shardsEmitted = deltaT.times(metaMorpho.totalShares);
-  metaMorpho.totalShards = metaMorpho.totalShards.plus(shardsEmitted);
+  const pointsEmitted = deltaT.times(metaMorpho.totalShares);
+  metaMorpho.totalPoints = metaMorpho.totalPoints.plus(pointsEmitted);
 
   metaMorpho.lastUpdate = timestamp;
   metaMorpho.save();
 }
 
-export function computeMetaMorphoPositionShards(
+export function computeMetaMorphoPositionPoints(
   mmAddress: Bytes,
   userAddress: Bytes,
   timestamp: BigInt
@@ -34,11 +34,11 @@ export function computeMetaMorphoPositionShards(
   const mmPosition = setupMetaMorphoPosition(mmAddress, userAddress);
 
   // One shard = one share for one second.
-  const shardsReceived = timestamp
+  const pointsReceived = timestamp
     .minus(mmPosition.lastUpdate)
     .times(mmPosition.shares);
 
-  mmPosition.supplyShards = mmPosition.supplyShards.plus(shardsReceived);
+  mmPosition.supplyPoints = mmPosition.supplyPoints.plus(pointsReceived);
   mmPosition.lastUpdate = timestamp;
 
   mmPosition.save();
@@ -46,9 +46,9 @@ export function computeMetaMorphoPositionShards(
 export function distributeMetaMorphoRewards(mmTx: MetaMorphoTx): void {
   // position rewards
 
-  computeMetaMorphoShards(mmTx.metaMorpho, mmTx.timestamp);
+  computeMetaMorphoPoints(mmTx.metaMorpho, mmTx.timestamp);
 
-  computeMetaMorphoPositionShards(mmTx.metaMorpho, mmTx.user, mmTx.timestamp);
+  computeMetaMorphoPositionPoints(mmTx.metaMorpho, mmTx.user, mmTx.timestamp);
 
   // accounting. We update the total shares of the metamorpho and the position.
   const metaMorpho = setupMetaMorpho(mmTx.metaMorpho);

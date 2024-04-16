@@ -55,9 +55,9 @@ describe("Morpho handlers", () => {
     market.totalSupplyShares = BigInt.zero();
     market.totalBorrowShares = BigInt.zero();
     market.totalCollateral = BigInt.zero();
-    market.totalSupplyShards = BigInt.zero();
-    market.totalBorrowShards = BigInt.zero();
-    market.totalCollateralShards = BigInt.zero();
+    market.totalSupplyPoints = BigInt.zero();
+    market.totalBorrowPoints = BigInt.zero();
+    market.totalCollateralPoints = BigInt.zero();
 
     market.save();
   });
@@ -139,23 +139,23 @@ describe("Morpho handlers", () => {
     const position = setupPosition(id, morphoFeeRecipient.feeRecipient);
     assert.assertNotNull(position);
     assert.bigIntEquals(position!.supplyShares, feeShares);
-    assert.bigIntEquals(position!.supplyShards, BigInt.zero());
+    assert.bigIntEquals(position!.supplyPoints, BigInt.zero());
     assert.bigIntEquals(position!.lastUpdate, timestamp);
     assert.bigIntEquals(position!.collateral, BigInt.zero());
     assert.bigIntEquals(position!.borrowShares, BigInt.zero());
-    assert.bigIntEquals(position!.borrowShards, BigInt.zero());
-    assert.bigIntEquals(position!.collateralShards, BigInt.zero());
+    assert.bigIntEquals(position!.borrowPoints, BigInt.zero());
+    assert.bigIntEquals(position!.collateralPoints, BigInt.zero());
 
     const market = Market.load(id);
     assert.assertNotNull(market);
     assert.bigIntEquals(market!.totalSupplyShares, feeShares);
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
     assert.bigIntEquals(market!.lastUpdate, timestamp);
 
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateral, BigInt.zero());
-    assert.bigIntEquals(market!.totalCollateralShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalCollateralPoints, BigInt.zero());
   });
 
   test("SupplyCollateral of a new user", () => {
@@ -193,20 +193,20 @@ describe("Morpho handlers", () => {
     assert.bigIntEquals(position!.collateral, assets);
     assert.bigIntEquals(position!.supplyShares, BigInt.zero());
     assert.bigIntEquals(position!.borrowShares, BigInt.zero());
-    assert.bigIntEquals(position!.supplyShards, BigInt.zero());
-    assert.bigIntEquals(position!.borrowShards, BigInt.zero());
-    assert.bigIntEquals(position!.collateralShards, BigInt.zero());
+    assert.bigIntEquals(position!.supplyPoints, BigInt.zero());
+    assert.bigIntEquals(position!.borrowPoints, BigInt.zero());
+    assert.bigIntEquals(position!.collateralPoints, BigInt.zero());
     assert.bigIntEquals(position!.lastUpdate, timestamp);
 
     const market = Market.load(id);
     assert.assertNotNull(market);
     assert.bigIntEquals(market!.totalCollateral, assets);
-    assert.bigIntEquals(market!.totalCollateralShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalCollateralPoints, BigInt.zero());
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalSupplyShares, BigInt.zero());
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateral, assets);
   });
 
@@ -257,11 +257,11 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(position.supplyShares, BigInt.zero());
     assert.bigIntEquals(position.borrowShares, BigInt.zero());
-    assert.bigIntEquals(position.supplyShards, BigInt.zero());
-    assert.bigIntEquals(position.borrowShards, BigInt.zero());
+    assert.bigIntEquals(position.supplyPoints, BigInt.zero());
+    assert.bigIntEquals(position.borrowPoints, BigInt.zero());
     assert.bigIntEquals(
-      position!.collateralShards,
-      initialPosition.collateralShards.plus(
+      position!.collateralPoints,
+      initialPosition.collateralPoints.plus(
         initialPosition.collateral.times(
           timestamp.minus(initialPosition.lastUpdate)
         )
@@ -275,8 +275,8 @@ describe("Morpho handlers", () => {
       initialMarket!.totalCollateral.plus(assets)
     );
     assert.bigIntEquals(
-      market!.totalCollateralShards,
-      initialMarket!.totalCollateralShards.plus(
+      market!.totalCollateralPoints,
+      initialMarket!.totalCollateralPoints.plus(
         initialMarket!.totalCollateral.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -285,8 +285,8 @@ describe("Morpho handlers", () => {
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalSupplyShares, BigInt.zero());
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(
       market!.totalCollateral,
       initialMarket!.totalCollateral.plus(assets)
@@ -345,11 +345,11 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(position.supplyShares, BigInt.zero());
     assert.bigIntEquals(position.borrowShares, BigInt.zero());
-    assert.bigIntEquals(position.supplyShards, BigInt.zero());
-    assert.bigIntEquals(position.borrowShards, BigInt.zero());
+    assert.bigIntEquals(position.supplyPoints, BigInt.zero());
+    assert.bigIntEquals(position.borrowPoints, BigInt.zero());
     assert.bigIntEquals(
-      position!.collateralShards,
-      initialPosition.collateralShards.plus(
+      position!.collateralPoints,
+      initialPosition.collateralPoints.plus(
         initialPosition.collateral.times(
           timestamp.minus(initialPosition.lastUpdate)
         )
@@ -363,8 +363,8 @@ describe("Morpho handlers", () => {
       initialMarket!.totalCollateral.minus(assets)
     );
     assert.bigIntEquals(
-      market!.totalCollateralShards,
-      initialMarket!.totalCollateralShards.plus(
+      market!.totalCollateralPoints,
+      initialMarket!.totalCollateralPoints.plus(
         initialMarket!.totalCollateral.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -373,8 +373,8 @@ describe("Morpho handlers", () => {
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalSupplyShares, BigInt.zero());
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(
       market!.totalCollateral,
       initialMarket!.totalCollateral.minus(assets)
@@ -418,20 +418,20 @@ describe("Morpho handlers", () => {
     assert.bigIntEquals(position!.collateral, BigInt.zero());
     assert.bigIntEquals(position!.supplyShares, shares);
     assert.bigIntEquals(position!.borrowShares, BigInt.zero());
-    assert.bigIntEquals(position!.supplyShards, BigInt.zero());
-    assert.bigIntEquals(position!.borrowShards, BigInt.zero());
-    assert.bigIntEquals(position!.collateralShards, BigInt.zero());
+    assert.bigIntEquals(position!.supplyPoints, BigInt.zero());
+    assert.bigIntEquals(position!.borrowPoints, BigInt.zero());
+    assert.bigIntEquals(position!.collateralPoints, BigInt.zero());
     assert.bigIntEquals(position!.lastUpdate, timestamp);
 
     const market = Market.load(id);
     assert.assertNotNull(market);
     assert.bigIntEquals(market!.totalSupplyShares, shares);
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateral, BigInt.zero());
-    assert.bigIntEquals(market!.totalCollateralShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalCollateralPoints, BigInt.zero());
   });
 
   test("Supply of an existing user", () => {
@@ -485,15 +485,15 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(position.borrowShares, BigInt.zero());
     assert.bigIntEquals(
-      position.supplyShards,
-      initialPosition.supplyShards.plus(
+      position.supplyPoints,
+      initialPosition.supplyPoints.plus(
         initialPosition.supplyShares.times(
           timestamp.minus(initialPosition.lastUpdate)
         )
       )
     );
-    assert.bigIntEquals(position.borrowShards, BigInt.zero());
-    assert.bigIntEquals(position.collateralShards, BigInt.zero());
+    assert.bigIntEquals(position.borrowPoints, BigInt.zero());
+    assert.bigIntEquals(position.collateralPoints, BigInt.zero());
     assert.bigIntEquals(position.lastUpdate, timestamp);
 
     const market = Market.load(id);
@@ -503,8 +503,8 @@ describe("Morpho handlers", () => {
       initialMarket!.totalSupplyShares.plus(shares)
     );
     assert.bigIntEquals(
-      market!.totalSupplyShards,
-      initialMarket!.totalSupplyShards.plus(
+      market!.totalSupplyPoints,
+      initialMarket!.totalSupplyPoints.plus(
         initialMarket!.totalSupplyShares.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -512,9 +512,9 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateral, BigInt.zero());
-    assert.bigIntEquals(market!.totalCollateralShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalCollateralPoints, BigInt.zero());
   });
 
   test("Withdraw of an existing user", () => {
@@ -573,15 +573,15 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(position.borrowShares, BigInt.zero());
     assert.bigIntEquals(
-      position.supplyShards,
-      initialPosition.supplyShards.plus(
+      position.supplyPoints,
+      initialPosition.supplyPoints.plus(
         initialPosition.supplyShares.times(
           timestamp.minus(initialPosition.lastUpdate)
         )
       )
     );
-    assert.bigIntEquals(position.borrowShards, BigInt.zero());
-    assert.bigIntEquals(position.collateralShards, BigInt.zero());
+    assert.bigIntEquals(position.borrowPoints, BigInt.zero());
+    assert.bigIntEquals(position.collateralPoints, BigInt.zero());
     assert.bigIntEquals(position.lastUpdate, timestamp);
 
     const market = Market.load(id);
@@ -591,8 +591,8 @@ describe("Morpho handlers", () => {
       initialMarket!.totalSupplyShares.minus(shares)
     );
     assert.bigIntEquals(
-      market!.totalSupplyShards,
-      initialMarket!.totalSupplyShards.plus(
+      market!.totalSupplyPoints,
+      initialMarket!.totalSupplyPoints.plus(
         initialMarket!.totalSupplyShares.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -600,9 +600,9 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateral, BigInt.zero());
-    assert.bigIntEquals(market!.totalCollateralShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalCollateralPoints, BigInt.zero());
   });
 
   test("Borrow of a new borrower", () => {
@@ -656,11 +656,11 @@ describe("Morpho handlers", () => {
     assert.bigIntEquals(position.collateral, BigInt.fromI32(100));
     assert.bigIntEquals(position.supplyShares, BigInt.zero());
     assert.bigIntEquals(position.borrowShares, shares);
-    assert.bigIntEquals(position.supplyShards, BigInt.zero());
-    assert.bigIntEquals(position.borrowShards, BigInt.zero());
+    assert.bigIntEquals(position.supplyPoints, BigInt.zero());
+    assert.bigIntEquals(position.borrowPoints, BigInt.zero());
     assert.bigIntEquals(
-      position.collateralShards,
-      position.collateralShards.plus(
+      position.collateralPoints,
+      position.collateralPoints.plus(
         position.collateral.times(timestamp.minus(position.lastUpdate))
       )
     );
@@ -669,17 +669,17 @@ describe("Morpho handlers", () => {
     const market = Market.load(id);
     assert.assertNotNull(market);
     assert.bigIntEquals(market!.totalBorrowShares, shares);
-    assert.bigIntEquals(market!.totalBorrowShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalSupplyShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
     assert.bigIntEquals(
       market!.totalCollateral,
       initialMarket!.totalCollateral
     );
     assert.bigIntEquals(
-      market!.totalCollateralShards,
-      initialMarket!.totalCollateralShards.plus(
+      market!.totalCollateralPoints,
+      initialMarket!.totalCollateralPoints.plus(
         initialMarket!.totalCollateral.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -743,16 +743,16 @@ describe("Morpho handlers", () => {
       position.borrowShares,
       initialPosition.borrowShares.plus(shares)
     );
-    assert.bigIntEquals(position.supplyShards, BigInt.zero());
+    assert.bigIntEquals(position.supplyPoints, BigInt.zero());
     assert.bigIntEquals(
-      position.borrowShards,
+      position.borrowPoints,
       timestamp
         .minus(initialPosition.lastUpdate)
         .times(initialPosition.borrowShares)
     );
     assert.bigIntEquals(
-      position.collateralShards,
-      position.collateralShards.plus(
+      position.collateralPoints,
+      position.collateralPoints.plus(
         position.collateral.times(timestamp.minus(position.lastUpdate))
       )
     );
@@ -765,8 +765,8 @@ describe("Morpho handlers", () => {
       initialMarket!.totalBorrowShares.plus(shares)
     );
     assert.bigIntEquals(
-      market!.totalBorrowShards,
-      initialMarket!.totalBorrowShards.plus(
+      market!.totalBorrowPoints,
+      initialMarket!.totalBorrowPoints.plus(
         initialMarket!.totalBorrowShares.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -774,14 +774,14 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalSupplyShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
     assert.bigIntEquals(
       market!.totalCollateral,
       initialMarket!.totalCollateral
     );
     assert.bigIntEquals(
-      market!.totalCollateralShards,
-      initialMarket!.totalCollateralShards.plus(
+      market!.totalCollateralPoints,
+      initialMarket!.totalCollateralPoints.plus(
         initialMarket!.totalCollateral.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -841,16 +841,16 @@ describe("Morpho handlers", () => {
       position.borrowShares,
       initialPosition.borrowShares.minus(shares)
     );
-    assert.bigIntEquals(position.supplyShards, BigInt.zero());
+    assert.bigIntEquals(position.supplyPoints, BigInt.zero());
     assert.bigIntEquals(
-      position.borrowShards,
+      position.borrowPoints,
       timestamp
         .minus(initialPosition.lastUpdate)
         .times(initialPosition.borrowShares)
     );
     assert.bigIntEquals(
-      position.collateralShards,
-      position.collateralShards.plus(
+      position.collateralPoints,
+      position.collateralPoints.plus(
         position.collateral.times(timestamp.minus(position.lastUpdate))
       )
     );
@@ -863,8 +863,8 @@ describe("Morpho handlers", () => {
       initialMarket!.totalBorrowShares.minus(shares)
     );
     assert.bigIntEquals(
-      market!.totalBorrowShards,
-      initialMarket!.totalBorrowShards.plus(
+      market!.totalBorrowPoints,
+      initialMarket!.totalBorrowPoints.plus(
         initialMarket!.totalBorrowShares.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -872,14 +872,14 @@ describe("Morpho handlers", () => {
     );
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalSupplyShares, BigInt.zero());
-    assert.bigIntEquals(market!.totalSupplyShards, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
     assert.bigIntEquals(
       market!.totalCollateral,
       initialMarket!.totalCollateral
     );
     assert.bigIntEquals(
-      market!.totalCollateralShards,
-      initialMarket!.totalCollateralShards.plus(
+      market!.totalCollateralPoints,
+      initialMarket!.totalCollateralPoints.plus(
         initialMarket!.totalCollateral.times(
           timestamp.minus(initialMarket!.lastUpdate)
         )
@@ -901,9 +901,9 @@ describe("MetaMorpho as collateral", () => {
     market.totalSupplyShares = BigInt.zero();
     market.totalBorrowShares = BigInt.zero();
     market.totalCollateral = BigInt.zero();
-    market.totalSupplyShards = BigInt.zero();
-    market.totalBorrowShards = BigInt.zero();
-    market.totalCollateralShards = BigInt.zero();
+    market.totalSupplyPoints = BigInt.zero();
+    market.totalBorrowPoints = BigInt.zero();
+    market.totalCollateralPoints = BigInt.zero();
 
     market.save();
 
@@ -912,7 +912,7 @@ describe("MetaMorpho as collateral", () => {
       Bytes.fromHexString("0x1111000000000000000000000000000000000000")
     );
     metaMorpho.totalShares = BigInt.fromI32(100);
-    metaMorpho.totalShards = BigInt.fromI32(100);
+    metaMorpho.totalPoints = BigInt.fromI32(100);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
 
     metaMorpho.save();
@@ -1013,7 +1013,7 @@ describe("MetaMorpho as collateral", () => {
     assert.bytesEquals(position.user, onBehalf);
     assert.bytesEquals(position.metaMorpho, mmAddress);
     assert.bigIntEquals(position.shares, assets);
-    assert.bigIntEquals(position.supplyShards, BigInt.zero());
+    assert.bigIntEquals(position.supplyPoints, BigInt.zero());
 
     const callerPosition = setupMetaMorphoPosition(mmAddress, caller);
     assert.assertNotNull(callerPosition);
@@ -1133,7 +1133,7 @@ describe("MetaMorpho as collateral", () => {
     assert.assertNotNull(receiverMetaMorphoPosition);
     assert.bytesEquals(receiverMetaMorphoPosition.user, receiver);
     assert.bigIntEquals(receiverMetaMorphoPosition.shares, assets);
-    assert.bigIntEquals(receiverMetaMorphoPosition.supplyShards, BigInt.zero());
+    assert.bigIntEquals(receiverMetaMorphoPosition.supplyPoints, BigInt.zero());
 
     const onBehalfPosition = setupMetaMorphoPosition(
       Bytes.fromHexString("0x1111000000000000000000000000000000000000"),

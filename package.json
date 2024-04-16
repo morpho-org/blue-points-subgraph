@@ -1,5 +1,5 @@
 {
-  "name": "@morpho-org/blue-shards-subgraph",
+  "name": "@morpho-org/blue-points-subgraph",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
@@ -9,7 +9,7 @@
     "remove-local": "graph remove --node http://localhost:8020/ morpho-org/morpho-blue-rewards-points",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 morpho-org/morpho-blue-rewards-points",
     "deploy:hs:staging": "graph deploy --node https://api.thegraph.com/deploy/ morpho-dev/morpho-blue-rewards-points",
-    "deploy:hs:prod": "graph deploy --node https://api.thegraph.com/deploy/ morpho-association/morpho-blue-shards",
+    "deploy:hs:prod": "graph deploy --node https://api.thegraph.com/deploy/ morpho-association/morpho-blue-points",
     "test": "graph test",
     "lint": "eslint --ext .ts .",
     "lint:fix": "yarn lint --fix",
