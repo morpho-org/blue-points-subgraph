@@ -47,6 +47,10 @@ export function setupPosition(marketId: Bytes, userAddress: Bytes): Position {
 
     position.lastUpdate = BigInt.zero(); // will be modified before adding any shares.
 
+    const mm = MetaMorpho.load(userAddress);
+    if (mm != null) {
+      position.ofMetaMorpho = mm.id;
+    }
     position.save();
   }
 

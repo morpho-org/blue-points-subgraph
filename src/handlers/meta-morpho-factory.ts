@@ -16,7 +16,13 @@ export function handleCreateMetaMorpho(event: CreateMetaMorphoEvent): void {
   const user = User.load(event.params.metaMorpho);
 
   if (user) {
-    // TODO: handle the fact that metamorpho can already have Morpho positions here.
+    // handle the fact that metamorpho can already have Morpho positions here (because of a donation to a not yet deployed vault)
+    // const positions = user.positions.load();
+    // for (let i = 0; i < positions.length; i++) {
+    //   const position = Position.load(positions[i].id)!;
+    //   position.ofMetaMorpho == event.params.metaMorpho;
+    //   position.save();
+    // }
   }
 
   MetaMorphoTemplate.create(event.params.metaMorpho);

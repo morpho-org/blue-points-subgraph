@@ -76,6 +76,8 @@ type Position @entity {
   collateralPoints: BigInt!
 
   lastUpdate: BigInt!
+
+  ofMetaMorpho: MetaMorpho
 }
 
 
@@ -91,6 +93,7 @@ type MetaMorpho @entity {
 
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "metaMorpho")
   positions: [MetaMorphoPosition!]! @derivedFrom(field: "metaMorpho")
+  bluePositions: [Position!]! @derivedFrom(field: "ofMetaMorpho")
 
 }
 
