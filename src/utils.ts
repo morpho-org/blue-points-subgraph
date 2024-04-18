@@ -1,4 +1,4 @@
-import { Bytes, crypto, ethereum, log } from "@graphprotocol/graph-ts";
+import { Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 
 export namespace PositionType {
   export const SUPPLY = "SUPPLY";
@@ -6,10 +6,6 @@ export namespace PositionType {
   export const BORROW = "BORROW";
 
   export const COLLATERAL = "COLLATERAL";
-}
-
-export function hashBytes(bytes: Bytes): Bytes {
-  return Bytes.fromHexString(crypto.keccak256(bytes).toHexString());
 }
 
 export function generateLogId(event: ethereum.Event): Bytes {
@@ -22,5 +18,5 @@ export function generateLogId(event: ethereum.Event): Bytes {
     return Bytes.fromUTF8("");
   }
 
-  return hashBytes(event.transaction.hash.concat(logIndex));
+  return event.transaction.hash.concat(logIndex);
 }

@@ -8,8 +8,6 @@ import {
   User,
 } from "../generated/schema";
 
-import { hashBytes } from "./utils";
-
 export function getMarket(marketId: Bytes): Market {
   let market = Market.load(marketId);
   if (!market) {
@@ -30,7 +28,7 @@ export function setupUser(address: Bytes): User {
 }
 
 export function setupPosition(marketId: Bytes, userAddress: Bytes): Position {
-  const positionId = hashBytes(marketId.concat(userAddress));
+  const positionId = marketId.concat(userAddress);
   let position = Position.load(positionId);
 
   if (!position) {
@@ -70,7 +68,7 @@ export function setupMetaMorphoPosition(
   metaMorphoAddress: Bytes,
   userAddress: Bytes
 ): MetaMorphoPosition {
-  const mmPositionId = hashBytes(metaMorphoAddress.concat(userAddress));
+  const mmPositionId = metaMorphoAddress.concat(userAddress);
   let metaMorphoPosition = MetaMorphoPosition.load(mmPositionId);
   if (!metaMorphoPosition) {
     metaMorphoPosition = new MetaMorphoPosition(mmPositionId);

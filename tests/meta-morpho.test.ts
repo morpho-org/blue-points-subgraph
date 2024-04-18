@@ -21,7 +21,7 @@ import {
   handleWithdraw,
 } from "../src/handlers/meta-morpho";
 import { setupMetaMorphoPosition } from "../src/initializers";
-import { generateLogId, hashBytes } from "../src/utils";
+import { generateLogId } from "../src/utils";
 
 import {
   checkTxEventFields,
@@ -128,7 +128,7 @@ describe("MetaMorpho handlers", () => {
     );
 
     const position = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(feeRecipient))
+      metaMorpho.id.concat(feeRecipient)
     );
     assert.assertNotNull(position);
     assert.bytesEquals(position!.user, feeRecipient);
@@ -177,9 +177,7 @@ describe("MetaMorpho handlers", () => {
 
     checkTxEventFields(metaMorphoTx!, newDepositEvent);
 
-    const position = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(owner))
-    );
+    const position = MetaMorphoPosition.load(metaMorpho.id.concat(owner));
     assert.assertNotNull(position);
     assert.bytesEquals(position!.user, owner);
     assert.bytesEquals(position!.metaMorpho, metaMorpho.id);
@@ -246,7 +244,7 @@ describe("MetaMorpho handlers", () => {
     checkTxEventFields(metaMorphoTx!, newDepositEvent);
 
     const positionAfterTx = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(owner))
+      metaMorpho.id.concat(owner)
     );
     assert.assertNotNull(positionAfterTx);
     assert.bytesEquals(positionAfterTx!.user, owner);
@@ -325,9 +323,7 @@ describe("MetaMorpho handlers", () => {
 
     checkTxEventFields(metaMorphoTx!, withdrawEvent);
 
-    const mmPosition = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(owner))
-    );
+    const mmPosition = MetaMorphoPosition.load(metaMorpho.id.concat(owner));
     assert.assertNotNull(mmPosition);
     assert.bytesEquals(mmPosition!.user, owner);
     assert.bytesEquals(mmPosition!.metaMorpho, metaMorpho.id);
@@ -458,9 +454,7 @@ describe("MetaMorpho handlers", () => {
     assert.bigIntEquals(txTo!.timestamp, timestamp);
     checkTxEventFields(txTo!, transferEvent);
 
-    const positionFrom = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(sender))
-    );
+    const positionFrom = MetaMorphoPosition.load(metaMorpho.id.concat(sender));
     assert.assertNotNull(positionFrom);
     assert.bytesEquals(positionFrom!.user, sender);
     assert.bytesEquals(positionFrom!.metaMorpho, metaMorpho.id);
@@ -473,9 +467,7 @@ describe("MetaMorpho handlers", () => {
     );
     assert.bigIntEquals(positionFrom!.lastUpdate, timestamp);
 
-    const positionTo = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(receiver))
-    );
+    const positionTo = MetaMorphoPosition.load(metaMorpho.id.concat(receiver));
     assert.assertNotNull(positionTo);
     assert.bytesEquals(positionTo!.user, receiver);
     assert.bytesEquals(positionTo!.metaMorpho, metaMorpho.id);
@@ -560,9 +552,7 @@ describe("MetaMorpho handlers", () => {
     assert.bigIntEquals(txTo!.timestamp, timestamp);
     checkTxEventFields(txTo!, transferEvent);
 
-    const positionFrom = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(sender))
-    );
+    const positionFrom = MetaMorphoPosition.load(metaMorpho.id.concat(sender));
     assert.assertNotNull(positionFrom);
     assert.bytesEquals(positionFrom!.user, sender);
     assert.bytesEquals(positionFrom!.metaMorpho, metaMorpho.id);
@@ -575,9 +565,7 @@ describe("MetaMorpho handlers", () => {
     );
     assert.bigIntEquals(positionFrom!.lastUpdate, timestamp);
 
-    const positionTo = MetaMorphoPosition.load(
-      hashBytes(metaMorpho.id.concat(receiver))
-    );
+    const positionTo = MetaMorphoPosition.load(metaMorpho.id.concat(receiver));
     assert.assertNotNull(positionTo);
     assert.bytesEquals(positionTo!.user, receiver);
     assert.bytesEquals(positionTo!.metaMorpho, metaMorpho.id);
