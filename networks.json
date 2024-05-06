@@ -1,22 +1,12 @@
 {
   "mainnet": {
     "Morpho": {
-      "address": "0x0000000000000000000000000000000000000000"
-    },
-    "URD": {
-      "address": "0x0000000000000000000000000000000000000000"
-    },
-    "MetaMorpho": {
-      "address": "0x0000000000000000000000000000000000000000"
+      "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+      "startBlock": 18883124
     },
     "MetaMorphoFactory": {
-      "address": "0x0000000000000000000000000000000000000000"
-    },
-    "EmissionDataProvider": {
-      "address": "0x0000000000000000000000000000000000000000"
-    },
-    "URDFactory": {
-      "address": "0x0000000000000000000000000000000000000000"
+      "address": "0xa9c3d3a366466fa809d1ae982fb2c46e5fc41101",
+      "startBlock": 18925584
     }
   }
 }

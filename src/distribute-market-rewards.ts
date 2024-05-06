@@ -3,6 +3,7 @@ import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { MorphoTx } from "../generated/schema";
 
 import { getMarket, setupPosition } from "./initializers";
+import { snapshotMarket, snapshotPosition } from "./snapshots";
 import { PositionType } from "./utils";
 
 export function computeMarketPoints(marketId: Bytes, timestamp: BigInt): void {
@@ -26,7 +27,6 @@ export function computeMarketPoints(marketId: Bytes, timestamp: BigInt): void {
     collateralPointsEmitted
   );
 
-  market.lastUpdate = timestamp;
   market.save();
 }
 
@@ -55,7 +55,6 @@ export function computeUserPositionPoints(
     collateralPointsReceived
   );
 
-  position.lastUpdate = timestamp;
   position.save();
 }
 export function handleMorphoTx(morphoTx: MorphoTx): void {
@@ -77,6 +76,24 @@ export function handleMorphoTx(morphoTx: MorphoTx): void {
     market.totalCollateral = market.totalCollateral.plus(morphoTx.shares);
   }
 
-  position.save();
+  const marketSnapshot = snapshotMarket(
+    market,
+    morphoTx.timestamp,
+    morphoTx.blockNumber
+  );
+
+  snapshotPosition(
+    position,
+    marketSnapshot,
+    morphoTx.timestamp,
+    morphoTx.blockNumber
+  );
+
+  // we update the lastUpdate after the snapshots have been taken.
+  // this allows us to store the previous snapshot id for each snapshot.
+  market.lastUpdate = morphoTx.timestamp;
   market.save();
+
+  position.lastUpdate = morphoTx.timestamp;
+  position.save();
 }

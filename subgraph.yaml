@@ -41,7 +41,8 @@ dataSources:
       eventHandlers:
         - event: AccrueInterest(indexed bytes32,uint256,uint256,uint256)
           handler: handleAccrueInterest
-        - event: Borrow(indexed bytes32,address,indexed address,indexed address,uint256,uint256)
+        - event: Borrow(indexed bytes32,address,indexed address,indexed
+            address,uint256,uint256)
           handler: handleBorrow
         - event: CreateMarket(indexed bytes32,(address,address,address,address,uint256))
           handler: handleCreateMarket
@@ -54,9 +55,11 @@ dataSources:
           handler: handleSupply
         - event: SupplyCollateral(indexed bytes32,indexed address,indexed address,uint256)
           handler: handleSupplyCollateral
-        - event: Withdraw(indexed bytes32,address,indexed address,indexed address,uint256,uint256)
+        - event: Withdraw(indexed bytes32,address,indexed address,indexed
+            address,uint256,uint256)
           handler: handleWithdraw
-        - event: WithdrawCollateral(indexed bytes32,address,indexed address,indexed address,uint256)
+        - event: WithdrawCollateral(indexed bytes32,address,indexed address,indexed
+            address,uint256)
           handler: handleWithdrawCollateral
         - event: SetFeeRecipient(indexed address)
           handler: handleSetFeeRecipient
@@ -82,8 +85,7 @@ dataSources:
         - name: MetaMorpho
           file: ./abis/MetaMorpho.json
       eventHandlers:
-        - event:
-            CreateMetaMorpho(indexed address,indexed address,address,uint256,indexed
+        - event: CreateMetaMorpho(indexed address,indexed address,address,uint256,indexed
             address,string,string,bytes32)
           handler: handleCreateMetaMorpho
       file: ./src/handlers/meta-morpho-factory.ts
