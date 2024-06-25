@@ -33,7 +33,7 @@ export function computeMetaMorphoPositionPoints(
 ): void {
   const mmPosition = setupMetaMorphoPosition(mmAddress, userAddress);
 
-  // One shard = one share for one second.
+  // One point = one share for one second.
   const pointsReceived = timestamp
     .minus(mmPosition.lastUpdate)
     .times(mmPosition.shares);
