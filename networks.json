@@ -1,22 +1,32 @@
 {
   "mainnet": {
     "Morpho": {
-      "address": "0x0000000000000000000000000000000000000000"
-    },
-    "URD": {
-      "address": "0x0000000000000000000000000000000000000000"
-    },
-    "MetaMorpho": {
-      "address": "0x0000000000000000000000000000000000000000"
+      "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+      "startBlock": 18883124
     },
     "MetaMorphoFactory": {
-      "address": "0x0000000000000000000000000000000000000000"
+      "address": "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101",
+      "startBlock": 18925584
+    }
+  },
+  "base-sepolia": {
+    "Morpho": {
+      "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+      "startBlock": 9304957
     },
-    "EmissionDataProvider": {
-      "address": "0x0000000000000000000000000000000000000000"
+    "MetaMorphoFactory": {
+      "address": "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101",
+      "startBlock": 9315415
+    }
+  },
+  "base": {
+    "Morpho": {
+      "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+      "startBlock": 13977148
     },
-    "URDFactory": {
-      "address": "0x0000000000000000000000000000000000000000"
+    "MetaMorphoFactory": {
+      "address": "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101",
+      "startBlock": 13978134
     }
   }
 }

@@ -36,7 +36,8 @@ type User @entity {
   morphoTxs: [MorphoTx!]! @derivedFrom(field: "user")
   positions: [Position!]! @derivedFrom(field: "user")
 
-  metaMorphoFeeRecipients: [MorphoFeeRecipient!]! @derivedFrom(field: "feeRecipient")
+  metaMorphoFeeRecipients: [MorphoFeeRecipient!]!
+    @derivedFrom(field: "feeRecipient")
   metaMorphoPositions: [MetaMorphoPosition!]! @derivedFrom(field: "user")
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "user")
 }
@@ -61,6 +62,26 @@ type Market @entity {
   positions: [Position!]! @derivedFrom(field: "market")
 }
 
+type MarketSnapshot @entity {
+  "{market id}-{timestamp}"
+  id: String!
+
+  market: Market!
+
+  totalSupplyShares: BigInt!
+  totalBorrowShares: BigInt!
+  totalCollateral: BigInt!
+
+  totalSupplyPoints: BigInt!
+  totalBorrowPoints: BigInt!
+  totalCollateralPoints: BigInt!
+
+  previousSnapshot: MarketSnapshot
+
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
 type Position @entity {
   "concat of the user address and the market id"
   id: Bytes!
@@ -80,6 +101,30 @@ type Position @entity {
   ofMetaMorpho: MetaMorpho
 }
 
+type PositionSnapshot @entity {
+  "{user address}{market id}-{timestamp}"
+  id: String!
+
+  position: Position!
+
+  user: User!
+  marketSnapshot: MarketSnapshot!
+
+  supplyShares: BigInt!
+  borrowShares: BigInt!
+  collateral: BigInt!
+
+  supplyPoints: BigInt!
+  borrowPoints: BigInt!
+  collateralPoints: BigInt!
+
+  ofMetaMorpho: MetaMorpho
+
+  previousSnapshot: PositionSnapshot
+
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
 
 type MetaMorpho @entity {
   id: Bytes!
@@ -94,7 +139,24 @@ type MetaMorpho @entity {
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "metaMorpho")
   positions: [MetaMorphoPosition!]! @derivedFrom(field: "metaMorpho")
   bluePositions: [Position!]! @derivedFrom(field: "ofMetaMorpho")
+}
 
+type MetaMorphoSnapshot @entity {
+  "{metaMorpho id}-{timestamp}"
+  id: String!
+
+  metaMorpho: MetaMorpho!
+
+  totalShares: BigInt!
+
+  feeRecipient: User
+
+  totalPoints: BigInt!
+
+  previousSnapshot: MetaMorphoSnapshot
+
+  timestamp: BigInt!
+  blockNumber: BigInt!
 }
 
 type MetaMorphoPosition @entity {
@@ -110,9 +172,25 @@ type MetaMorphoPosition @entity {
   lastUpdate: BigInt!
 
   metaMorphoTxs: [MetaMorphoTx!]! @derivedFrom(field: "position")
-
 }
 
+type MetaMorphoPositionSnapshot @entity {
+  "{user address}{metaMorpho id}-{timestamp}"
+  id: String!
+
+  metaMorphoSnapshot: MetaMorphoSnapshot!
+
+  user: User!
+
+  shares: BigInt!
+
+  supplyPoints: BigInt!
+
+  previousSnapshot: MetaMorphoPositionSnapshot
+
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
 
 type MetaMorphoTx @entity {
   id: Bytes!
