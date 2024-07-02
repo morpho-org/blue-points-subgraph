@@ -1092,7 +1092,7 @@ describe("MetaMorpho as collateral", () => {
     // Shares should not changes
     assert.bigIntEquals(metaMorphoPosition.shares, BigInt.fromI32(100));
   });
-  test("WithdrawCollateral with a metaMorpho as collateral, for itself", () => {
+  test("WithdrawCollateral with a metaMorpho as collateral, on behalf", () => {
     const id = Bytes.fromI32(1234567890);
     const onBehalf = Address.fromString(
       "0x0000000000000000000000000000000000000001"
