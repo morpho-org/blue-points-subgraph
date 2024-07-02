@@ -47,6 +47,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
 
     metaMorpho.save();
     const newTotalAssets = BigInt.fromI32(123);
@@ -75,6 +76,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
 
     metaMorpho.save();
     const newTotalAssets = BigInt.fromI32(123);
@@ -102,6 +104,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
 
     metaMorpho.save();
     const newTotalAssets = BigInt.fromI32(123);
@@ -146,6 +149,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(0);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 
@@ -207,6 +211,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(100);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 
@@ -282,6 +287,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 
@@ -348,6 +354,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 
@@ -376,6 +383,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 
@@ -404,6 +412,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 
@@ -494,6 +503,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(246);
+    metaMorpho.totalAssets = BigInt.fromI32(245);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 
@@ -600,6 +610,7 @@ describe("MetaMorpho handlers", () => {
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.totalPoints = BigInt.fromI32(123);
     metaMorpho.totalShares = BigInt.fromI32(123);
+    metaMorpho.totalAssets = BigInt.fromI32(122);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
     metaMorpho.save();
 

@@ -25,7 +25,9 @@ export function snapshotMarket(
 
   snapshot.market = market.id;
   snapshot.totalSupplyShares = market.totalSupplyShares;
+  snapshot.totalSupplyAssets = market.totalSupplyAssets;
   snapshot.totalBorrowShares = market.totalBorrowShares;
+  snapshot.totalBorrowAssets = market.totalBorrowAssets;
   snapshot.totalCollateral = market.totalCollateral;
   snapshot.totalSupplyPoints = market.totalSupplyPoints;
   snapshot.totalBorrowPoints = market.totalBorrowPoints;

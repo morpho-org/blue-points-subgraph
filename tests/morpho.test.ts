@@ -7,7 +7,7 @@ import {
   afterEach,
 } from "matchstick-as/assembly";
 
-import { Bytes, BigInt, Address } from "@graphprotocol/graph-ts";
+import { Bytes, BigInt, Address, log } from "@graphprotocol/graph-ts";
 
 import {
   Market,
@@ -53,7 +53,9 @@ describe("Morpho handlers", () => {
     );
     market.lastUpdate = BigInt.fromI32(1);
     market.totalSupplyShares = BigInt.zero();
+    market.totalSupplyAssets = BigInt.zero();
     market.totalBorrowShares = BigInt.zero();
+    market.totalBorrowAssets = BigInt.zero();
     market.totalCollateral = BigInt.zero();
     market.totalSupplyPoints = BigInt.zero();
     market.totalBorrowPoints = BigInt.zero();
@@ -110,6 +112,7 @@ describe("Morpho handlers", () => {
   });
 
   test("AccrueInterest with a fee", () => {
+    log.info("AccrueInterest with a fee", []);
     const morphoFeeRecipient = new MorphoFeeRecipient(Bytes.empty());
     morphoFeeRecipient.feeRecipient = Bytes.fromHexString(
       "0xA16081F360e3847006dB660bae1c6d1b2e17eC2A"
@@ -133,8 +136,9 @@ describe("Morpho handlers", () => {
 
     const morphoTx = MorphoTx.load(generateLogId(newAccrueInterestEvent));
     assert.assertNotNull(morphoTx);
-    assert.stringEquals(morphoTx!.type, EventType.SUPPLY);
+    assert.stringEquals(morphoTx!.type, EventType.ACCRUE_INTEREST);
     assert.bigIntEquals(morphoTx!.shares, feeShares);
+    assert.bigIntEquals(morphoTx!.assets, interest);
 
     const position = setupPosition(id, morphoFeeRecipient.feeRecipient);
     assert.assertNotNull(position);
@@ -149,10 +153,12 @@ describe("Morpho handlers", () => {
     const market = Market.load(id);
     assert.assertNotNull(market);
     assert.bigIntEquals(market!.totalSupplyShares, feeShares);
+    assert.bigIntEquals(market!.totalSupplyAssets, interest);
     assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
     assert.bigIntEquals(market!.lastUpdate, timestamp);
 
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowAssets, interest);
     assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateral, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateralPoints, BigInt.zero());
@@ -181,7 +187,8 @@ describe("Morpho handlers", () => {
     const morphoTx = MorphoTx.load(generateLogId(newSupplyCollateralEvent));
     assert.assertNotNull(morphoTx);
     assert.stringEquals(morphoTx!.type, EventType.COLLATERAL);
-    assert.bigIntEquals(morphoTx!.shares, assets);
+    assert.bigIntEquals(morphoTx!.shares, BigInt.zero());
+    assert.bigIntEquals(morphoTx!.assets, assets);
     assert.bytesEquals(morphoTx!.user, onBehalf);
     assert.bytesEquals(morphoTx!.market, id);
     checkTxEventFields(morphoTx!, newSupplyCollateralEvent);
@@ -204,7 +211,9 @@ describe("Morpho handlers", () => {
     assert.bigIntEquals(market!.totalCollateralPoints, BigInt.zero());
     assert.bigIntEquals(market!.lastUpdate, timestamp);
     assert.bigIntEquals(market!.totalSupplyShares, BigInt.zero());
+    assert.bigIntEquals(market!.totalSupplyAssets, BigInt.zero());
     assert.bigIntEquals(market!.totalBorrowShares, BigInt.zero());
+    assert.bigIntEquals(market!.totalBorrowAssets, BigInt.zero());
     assert.bigIntEquals(market!.totalSupplyPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalBorrowPoints, BigInt.zero());
     assert.bigIntEquals(market!.totalCollateral, assets);
@@ -242,7 +251,8 @@ describe("Morpho handlers", () => {
     const morphoTx = MorphoTx.load(generateLogId(newSupplyCollateralEvent));
     assert.assertNotNull(morphoTx);
     assert.stringEquals(morphoTx!.type, EventType.COLLATERAL);
-    assert.bigIntEquals(morphoTx!.shares, assets);
+    assert.bigIntEquals(morphoTx!.shares, BigInt.zero());
+    assert.bigIntEquals(morphoTx!.assets, assets);
     assert.bytesEquals(morphoTx!.user, onBehalf);
     assert.bytesEquals(morphoTx!.market, id);
     checkTxEventFields(morphoTx!, newSupplyCollateralEvent);
@@ -330,7 +340,8 @@ describe("Morpho handlers", () => {
     const morphoTx = MorphoTx.load(generateLogId(newSupplyCollateralEvent));
     assert.assertNotNull(morphoTx);
     assert.stringEquals(morphoTx!.type, EventType.COLLATERAL);
-    assert.bigIntEquals(morphoTx!.shares, assets.neg());
+    assert.bigIntEquals(morphoTx!.shares, BigInt.zero());
+    assert.bigIntEquals(morphoTx!.assets, assets.neg());
     assert.bytesEquals(morphoTx!.user, onBehalf);
     assert.bytesEquals(morphoTx!.market, id);
     checkTxEventFields(morphoTx!, newSupplyCollateralEvent);
@@ -899,7 +910,9 @@ describe("MetaMorpho as collateral", () => {
     );
     market.lastUpdate = BigInt.fromI32(1);
     market.totalSupplyShares = BigInt.zero();
+    market.totalSupplyAssets = BigInt.zero();
     market.totalBorrowShares = BigInt.zero();
+    market.totalBorrowAssets = BigInt.zero();
     market.totalCollateral = BigInt.zero();
     market.totalSupplyPoints = BigInt.zero();
     market.totalBorrowPoints = BigInt.zero();
@@ -913,6 +926,7 @@ describe("MetaMorpho as collateral", () => {
     );
     metaMorpho.totalShares = BigInt.fromI32(100);
     metaMorpho.totalPoints = BigInt.fromI32(100);
+    metaMorpho.totalAssets = BigInt.fromI32(100);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
 
     metaMorpho.save();
@@ -1055,7 +1069,8 @@ describe("MetaMorpho as collateral", () => {
 
     assert.assertNotNull(morphoTx);
     assert.stringEquals(morphoTx!.type, EventType.COLLATERAL);
-    assert.bigIntEquals(morphoTx!.shares, assets.neg());
+    assert.bigIntEquals(morphoTx!.shares, BigInt.zero());
+    assert.bigIntEquals(morphoTx!.assets, assets.neg());
     assert.bytesEquals(morphoTx!.user, onBehalf);
     assert.bytesEquals(morphoTx!.market, id);
     checkTxEventFields(morphoTx!, newWithdrawCollateralEvent);
@@ -1113,7 +1128,8 @@ describe("MetaMorpho as collateral", () => {
 
     assert.assertNotNull(morphoTx);
     assert.stringEquals(morphoTx!.type, EventType.COLLATERAL);
-    assert.bigIntEquals(morphoTx!.shares, assets.neg());
+    assert.bigIntEquals(morphoTx!.shares, BigInt.zero());
+    assert.bigIntEquals(morphoTx!.assets, assets.neg());
     assert.bytesEquals(morphoTx!.user, onBehalf);
     assert.bytesEquals(morphoTx!.market, id);
     checkTxEventFields(morphoTx!, newWithdrawCollateralEvent);

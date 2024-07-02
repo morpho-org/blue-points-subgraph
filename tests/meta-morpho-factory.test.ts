@@ -64,6 +64,7 @@ describe("Describe entity assertions", () => {
     assert.bigIntEquals(metaMorpho!.lastUpdate, BigInt.fromI32(1));
     assert.bigIntEquals(metaMorpho!.totalPoints, BigInt.fromI32(0));
     assert.bigIntEquals(metaMorpho!.totalShares, BigInt.fromI32(0));
+    assert.bigIntEquals(metaMorpho!.totalAssets, BigInt.fromI32(0));
     // the following test is throwing an error at the compile time
     // assert.assertNull(metaMorpho!.feeRecipient);
   });
