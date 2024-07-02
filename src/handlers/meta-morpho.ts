@@ -36,6 +36,8 @@ export function handleAccrueInterest(event: AccrueInterestEvent): void {
   mmTx.user = setupUser(mm.feeRecipient!).id;
   mmTx.position = setupMetaMorphoPosition(event.address, mm.feeRecipient!).id;
   mmTx.shares = event.params.feeShares;
+  // we only track the assets difference that will be added to the total assets when the tx is handled
+  mmTx.assets = event.params.newTotalAssets.minus(mm.totalAssets);
   mmTx.timestamp = event.block.timestamp;
 
   mmTx.txHash = event.transaction.hash;
@@ -56,6 +58,7 @@ export function handleDeposit(event: DepositEvent): void {
   mmTx.user = setupUser(event.params.owner).id;
   mmTx.position = setupMetaMorphoPosition(event.address, event.params.owner).id;
   mmTx.shares = event.params.shares;
+  mmTx.assets = event.params.assets;
 
   mmTx.timestamp = event.block.timestamp;
   mmTx.txHash = event.transaction.hash;
@@ -84,6 +87,7 @@ export function handleTransferEntity(
   mmTxFrom.user = setupUser(from).id;
   mmTxFrom.position = setupMetaMorphoPosition(mmAddress, from).id;
   mmTxFrom.shares = shares.neg();
+  mmTxFrom.assets = BigInt.zero();
 
   mmTxFrom.timestamp = event.block.timestamp;
   mmTxFrom.txHash = event.transaction.hash;
@@ -102,6 +106,7 @@ export function handleTransferEntity(
   mmTxTo.user = setupUser(to).id;
   mmTxTo.position = setupMetaMorphoPosition(mmAddress, to).id;
   mmTxTo.shares = shares;
+  mmTxTo.assets = BigInt.zero();
   mmTxTo.timestamp = event.block.timestamp;
 
   mmTxTo.txHash = event.transaction.hash;
@@ -142,6 +147,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   mmTx.user = setupUser(event.params.owner).id;
   mmTx.position = setupMetaMorphoPosition(event.address, event.params.owner).id;
   mmTx.shares = event.params.shares.neg();
+  mmTx.assets = event.params.assets.neg();
   mmTx.timestamp = event.block.timestamp;
 
   mmTx.txHash = event.transaction.hash;

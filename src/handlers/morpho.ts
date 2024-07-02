@@ -20,7 +20,7 @@ import {
 } from "../../generated/schema";
 import { handleMorphoTx } from "../distribute-market-rewards";
 import { getMarket, setupUser } from "../initializers";
-import { generateLogId, PositionType } from "../utils";
+import { generateLogId, EventType } from "../utils";
 
 import { handleTransferEntity } from "./meta-morpho";
 
@@ -36,10 +36,11 @@ export function handleAccrueInterest(event: AccrueInterestEvent): void {
   // We consider the fees accrued as a supply.
   const id = generateLogId(event);
   const morphoTx = new MorphoTx(id);
-  morphoTx.type = PositionType.SUPPLY;
+  morphoTx.type = EventType.ACCRUE_INTEREST;
   morphoTx.user = feeRecipient.feeRecipient;
   morphoTx.market = getMarket(event.params.id).id;
   morphoTx.shares = event.params.feeShares;
+  morphoTx.assets = event.params.interest;
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -56,10 +57,11 @@ export function handleAccrueInterest(event: AccrueInterestEvent): void {
 export function handleBorrow(event: BorrowEvent): void {
   const id = generateLogId(event);
   const morphoTx = new MorphoTx(id);
-  morphoTx.type = PositionType.BORROW;
+  morphoTx.type = EventType.BORROW;
   morphoTx.user = setupUser(event.params.onBehalf).id;
   morphoTx.market = getMarket(event.params.id).id;
   morphoTx.shares = event.params.shares;
+  morphoTx.assets = event.params.assets;
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -76,18 +78,20 @@ export function handleBorrow(event: BorrowEvent): void {
 export function handleLiquidate(event: LiquidateEvent): void {
   const market = getMarket(event.params.id);
 
-  const repayId = generateLogId(event).concat(
-    Bytes.fromUTF8(PositionType.BORROW)
-  );
+  const repayId = generateLogId(event).concat(Bytes.fromUTF8(EventType.BORROW));
 
   const repayMorphoTx = new MorphoTx(repayId);
-  repayMorphoTx.type = PositionType.BORROW;
+  repayMorphoTx.type = EventType.BORROW;
   repayMorphoTx.user = setupUser(event.params.borrower).id;
   repayMorphoTx.market = market.id;
   const totalShares = event.params.repaidShares.plus(
     event.params.badDebtShares
   );
   repayMorphoTx.shares = totalShares.neg();
+  const totalAssets = event.params.repaidAssets.plus(
+    event.params.badDebtAssets
+  );
+  repayMorphoTx.assets = totalAssets.neg();
 
   repayMorphoTx.timestamp = event.block.timestamp;
 
@@ -100,14 +104,15 @@ export function handleLiquidate(event: LiquidateEvent): void {
   handleMorphoTx(repayMorphoTx);
 
   const withdrawCollatId = generateLogId(event).concat(
-    Bytes.fromUTF8(PositionType.COLLATERAL)
+    Bytes.fromUTF8(EventType.COLLATERAL)
   );
 
   const withdrawCollatTx = new MorphoTx(withdrawCollatId);
-  withdrawCollatTx.type = PositionType.COLLATERAL;
+  withdrawCollatTx.type = EventType.COLLATERAL;
   withdrawCollatTx.user = setupUser(event.params.borrower).id;
   withdrawCollatTx.market = market.id;
-  withdrawCollatTx.shares = event.params.seizedAssets.neg();
+  withdrawCollatTx.shares = BigInt.zero();
+  withdrawCollatTx.assets = event.params.seizedAssets.neg();
 
   withdrawCollatTx.timestamp = event.block.timestamp;
 
@@ -119,6 +124,14 @@ export function handleLiquidate(event: LiquidateEvent): void {
   withdrawCollatTx.save();
 
   handleMorphoTx(withdrawCollatTx);
+
+  // we also need to remove some assets in the supply of the market
+  if (!event.params.badDebtShares.isZero()) {
+    market.totalSupplyAssets = market.totalSupplyAssets.minus(
+      event.params.badDebtAssets
+    );
+  }
+  market.save();
 
   if (MetaMorpho.load(market.collateralToken) != null) {
     handleTransferEntity(
@@ -134,10 +147,11 @@ export function handleLiquidate(event: LiquidateEvent): void {
 export function handleRepay(event: RepayEvent): void {
   const id = generateLogId(event);
   const morphoTx = new MorphoTx(id);
-  morphoTx.type = PositionType.BORROW;
+  morphoTx.type = EventType.BORROW;
   morphoTx.user = setupUser(event.params.onBehalf).id;
   morphoTx.market = getMarket(event.params.id).id;
   morphoTx.shares = event.params.shares.neg();
+  morphoTx.assets = event.params.assets.neg();
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -155,10 +169,11 @@ export function handleSupply(event: SupplyEvent): void {
   const id = generateLogId(event);
 
   const morphoTx = new MorphoTx(id);
-  morphoTx.type = PositionType.SUPPLY;
+  morphoTx.type = EventType.SUPPLY;
   morphoTx.user = setupUser(event.params.onBehalf).id;
   morphoTx.market = getMarket(event.params.id).id;
   morphoTx.shares = event.params.shares;
+  morphoTx.assets = event.params.assets;
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -176,10 +191,11 @@ export function handleSupplyCollateral(event: SupplyCollateralEvent): void {
   const market = getMarket(event.params.id);
   const id = generateLogId(event);
   const morphoTx = new MorphoTx(id);
-  morphoTx.type = PositionType.COLLATERAL;
+  morphoTx.type = EventType.COLLATERAL;
   morphoTx.user = setupUser(event.params.onBehalf).id;
   morphoTx.market = market.id;
-  morphoTx.shares = event.params.assets;
+  morphoTx.shares = BigInt.zero();
+  morphoTx.assets = event.params.assets;
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -206,10 +222,11 @@ export function handleSupplyCollateral(event: SupplyCollateralEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
   const id = generateLogId(event);
   const morphoTx = new MorphoTx(id);
-  morphoTx.type = PositionType.SUPPLY;
+  morphoTx.type = EventType.SUPPLY;
   morphoTx.user = setupUser(event.params.onBehalf).id;
   morphoTx.market = getMarket(event.params.id).id;
   morphoTx.shares = event.params.shares.neg();
+  morphoTx.assets = event.params.assets.neg();
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -228,10 +245,11 @@ export function handleWithdrawCollateral(event: WithdrawCollateralEvent): void {
   const market = getMarket(event.params.id);
 
   const morphoTx = new MorphoTx(id);
-  morphoTx.type = PositionType.COLLATERAL;
+  morphoTx.type = EventType.COLLATERAL;
   morphoTx.user = setupUser(event.params.onBehalf).id;
   morphoTx.market = market.id;
-  morphoTx.shares = event.params.assets.neg();
+  morphoTx.shares = BigInt.zero();
+  morphoTx.assets = event.params.assets.neg();
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -271,7 +289,9 @@ export function handleCreateMarket(event: CreateMarketEvent): void {
   market.collateralToken = event.params.marketParams.collateralToken;
 
   market.totalSupplyShares = BigInt.zero();
+  market.totalSupplyAssets = BigInt.zero();
   market.totalBorrowShares = BigInt.zero();
+  market.totalBorrowAssets = BigInt.zero();
   market.totalCollateral = BigInt.zero();
 
   market.totalSupplyPoints = BigInt.zero();

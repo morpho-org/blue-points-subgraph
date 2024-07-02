@@ -90,6 +90,7 @@ export function snapshotMetaMorpho(
   snapshot.metaMorpho = metaMorpho.id;
   snapshot.feeRecipient = metaMorpho.feeRecipient;
   snapshot.totalShares = metaMorpho.totalShares;
+  snapshot.totalAssets = metaMorpho.totalAssets;
   snapshot.totalPoints = metaMorpho.totalPoints;
 
   if (metaMorpho.lastUpdate != timestamp)
