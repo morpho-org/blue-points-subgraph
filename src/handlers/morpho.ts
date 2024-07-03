@@ -125,13 +125,32 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
   handleMorphoTx(withdrawCollatTx);
 
-  // we also need to remove some assets in the supply of the market
+  // we also need to remove bad debt assets in the supply of the market
+  // if the bad debt shares are not zero
   if (!event.params.badDebtShares.isZero()) {
-    market.totalSupplyAssets = market.totalSupplyAssets.minus(
-      event.params.badDebtAssets
+    const removeBadDebtAssetsId = generateLogId(event).concat(
+      Bytes.fromUTF8(EventType.SUPPLY)
     );
+
+    const removeBadDebtAssetsTx = new MorphoTx(removeBadDebtAssetsId);
+    removeBadDebtAssetsTx.type = EventType.SUPPLY;
+    removeBadDebtAssetsTx.user = setupUser(event.params.borrower).id;
+    removeBadDebtAssetsTx.market = market.id;
+    // we dont need to remove shares, only assets
+    removeBadDebtAssetsTx.shares = BigInt.zero();
+    removeBadDebtAssetsTx.assets = event.params.badDebtAssets.neg();
+
+    removeBadDebtAssetsTx.timestamp = event.block.timestamp;
+
+    removeBadDebtAssetsTx.txHash = event.transaction.hash;
+    removeBadDebtAssetsTx.txIndex = event.transaction.index;
+    removeBadDebtAssetsTx.logIndex = event.logIndex;
+
+    removeBadDebtAssetsTx.blockNumber = event.block.number;
+    removeBadDebtAssetsTx.save();
+
+    handleMorphoTx(removeBadDebtAssetsTx);
   }
-  market.save();
 
   if (MetaMorpho.load(market.collateralToken) != null) {
     handleTransferEntity(
