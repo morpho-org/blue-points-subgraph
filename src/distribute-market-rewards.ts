@@ -4,7 +4,7 @@ import { MorphoTx } from "../generated/schema";
 
 import { getMarket, setupPosition } from "./initializers";
 import { snapshotMarket, snapshotPosition } from "./snapshots";
-import { PositionType } from "./utils";
+import { EventType } from "./utils";
 
 export function computeMarketPoints(marketId: Bytes, timestamp: BigInt): void {
   const market = getMarket(marketId);
@@ -65,15 +65,22 @@ export function handleMorphoTx(morphoTx: MorphoTx): void {
   const position = setupPosition(morphoTx.market, morphoTx.user);
 
   // account of the morphoTx
-  if (morphoTx.type === PositionType.SUPPLY) {
+  if (morphoTx.type === EventType.SUPPLY) {
     position.supplyShares = position.supplyShares.plus(morphoTx.shares);
     market.totalSupplyShares = market.totalSupplyShares.plus(morphoTx.shares);
-  } else if (morphoTx.type === PositionType.BORROW) {
+    market.totalSupplyAssets = market.totalSupplyAssets.plus(morphoTx.assets);
+  } else if (morphoTx.type === EventType.BORROW) {
     position.borrowShares = position.borrowShares.plus(morphoTx.shares);
     market.totalBorrowShares = market.totalBorrowShares.plus(morphoTx.shares);
-  } else if (morphoTx.type === PositionType.COLLATERAL) {
-    position.collateral = position.collateral.plus(morphoTx.shares);
-    market.totalCollateral = market.totalCollateral.plus(morphoTx.shares);
+    market.totalBorrowAssets = market.totalBorrowAssets.plus(morphoTx.assets);
+  } else if (morphoTx.type === EventType.COLLATERAL) {
+    position.collateral = position.collateral.plus(morphoTx.assets);
+    market.totalCollateral = market.totalCollateral.plus(morphoTx.assets);
+  } else if (morphoTx.type === EventType.ACCRUE_INTEREST) {
+    position.supplyShares = position.supplyShares.plus(morphoTx.shares);
+    market.totalSupplyShares = market.totalSupplyShares.plus(morphoTx.shares);
+    market.totalSupplyAssets = market.totalSupplyAssets.plus(morphoTx.assets);
+    market.totalBorrowAssets = market.totalBorrowAssets.plus(morphoTx.assets);
   }
 
   const marketSnapshot = snapshotMarket(

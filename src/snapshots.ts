@@ -25,7 +25,9 @@ export function snapshotMarket(
 
   snapshot.market = market.id;
   snapshot.totalSupplyShares = market.totalSupplyShares;
+  snapshot.totalSupplyAssets = market.totalSupplyAssets;
   snapshot.totalBorrowShares = market.totalBorrowShares;
+  snapshot.totalBorrowAssets = market.totalBorrowAssets;
   snapshot.totalCollateral = market.totalCollateral;
   snapshot.totalSupplyPoints = market.totalSupplyPoints;
   snapshot.totalBorrowPoints = market.totalBorrowPoints;
@@ -90,6 +92,7 @@ export function snapshotMetaMorpho(
   snapshot.metaMorpho = metaMorpho.id;
   snapshot.feeRecipient = metaMorpho.feeRecipient;
   snapshot.totalShares = metaMorpho.totalShares;
+  snapshot.totalAssets = metaMorpho.totalAssets;
   snapshot.totalPoints = metaMorpho.totalPoints;
 
   if (metaMorpho.lastUpdate != timestamp)

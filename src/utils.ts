@@ -1,11 +1,13 @@
 import { Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 
-export namespace PositionType {
+export namespace EventType {
   export const SUPPLY = "SUPPLY";
 
   export const BORROW = "BORROW";
 
   export const COLLATERAL = "COLLATERAL";
+
+  export const ACCRUE_INTEREST = "ACCRUE_INTEREST";
 }
 
 export function generateLogId(event: ethereum.Event): Bytes {

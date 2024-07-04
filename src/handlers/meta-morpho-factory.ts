@@ -7,6 +7,7 @@ import { MetaMorpho as MetaMorphoTemplate } from "../../generated/templates";
 export function handleCreateMetaMorpho(event: CreateMetaMorphoEvent): void {
   const mmEntity = new MetaMorphoEntity(event.params.metaMorpho);
   mmEntity.totalShares = BigInt.zero();
+  mmEntity.totalAssets = BigInt.zero();
 
   mmEntity.totalPoints = BigInt.zero();
 

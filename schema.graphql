@@ -1,7 +1,8 @@
-enum PositionType {
+enum EventType {
   SUPPLY
   BORROW
   COLLATERAL
+  ACCRUE_INTEREST
 }
 
 type MorphoFeeRecipient @entity {
@@ -13,13 +14,14 @@ type MorphoFeeRecipient @entity {
 type MorphoTx @entity {
   id: Bytes!
 
-  type: PositionType!
+  type: EventType!
 
   user: User!
 
   market: Market!
 
   shares: BigInt!
+  assets: BigInt!
 
   timestamp: BigInt!
 
@@ -49,7 +51,9 @@ type Market @entity {
   collateralToken: Bytes!
 
   totalSupplyShares: BigInt!
+  totalSupplyAssets: BigInt!
   totalBorrowShares: BigInt!
+  totalBorrowAssets: BigInt!
   totalCollateral: BigInt!
 
   totalSupplyPoints: BigInt!
@@ -69,7 +73,9 @@ type MarketSnapshot @entity {
   market: Market!
 
   totalSupplyShares: BigInt!
+  totalSupplyAssets: BigInt!
   totalBorrowShares: BigInt!
+  totalBorrowAssets: BigInt!
   totalCollateral: BigInt!
 
   totalSupplyPoints: BigInt!
@@ -130,6 +136,7 @@ type MetaMorpho @entity {
   id: Bytes!
 
   totalShares: BigInt!
+  totalAssets: BigInt!
 
   feeRecipient: User
 
@@ -148,6 +155,7 @@ type MetaMorphoSnapshot @entity {
   metaMorpho: MetaMorpho!
 
   totalShares: BigInt!
+  totalAssets: BigInt!
 
   feeRecipient: User
 
@@ -202,6 +210,7 @@ type MetaMorphoTx @entity {
   position: MetaMorphoPosition!
 
   shares: BigInt!
+  assets: BigInt!
 
   timestamp: BigInt!
 
