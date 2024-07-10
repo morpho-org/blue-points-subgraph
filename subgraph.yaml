@@ -6,8 +6,8 @@ dataSources:
     name: Morpho
     network: mainnet
     source:
-      address: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
       abi: Morpho
+      address: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
       startBlock: 18883124
     mapping:
       kind: ethereum/events
@@ -68,8 +68,8 @@ dataSources:
     name: MetaMorphoFactory
     network: mainnet
     source:
-      address: "0xa9c3d3a366466fa809d1ae982fb2c46e5fc41101"
       abi: MetaMorphoFactory
+      address: "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101"
       startBlock: 18925584
     mapping:
       kind: ethereum/events

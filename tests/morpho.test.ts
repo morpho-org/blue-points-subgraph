@@ -928,6 +928,9 @@ describe("MetaMorpho as collateral", () => {
     metaMorpho.totalPoints = BigInt.fromI32(100);
     metaMorpho.totalAssets = BigInt.fromI32(100);
     metaMorpho.lastUpdate = BigInt.fromI32(1);
+    metaMorpho.asset = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
 
     metaMorpho.save();
 
