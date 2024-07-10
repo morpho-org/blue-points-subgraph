@@ -135,6 +135,9 @@ type PositionSnapshot @entity {
 type MetaMorpho @entity {
   id: Bytes!
 
+  # address of the asset supplied by the user to the metaMorpho
+  asset: Bytes!
+
   totalShares: BigInt!
   totalAssets: BigInt!
 
