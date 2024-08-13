@@ -4,7 +4,7 @@ import { MorphoTx } from "../generated/schema";
 
 import { getMarket, setupPosition } from "./initializers";
 import { snapshotMarket, snapshotPosition } from "./snapshots";
-import { EventType } from "./utils";
+import { EventType, zeroFloorPlus } from "./utils";
 
 export function computeMarketPoints(marketId: Bytes, timestamp: BigInt): void {
   const market = getMarket(marketId);
@@ -72,7 +72,11 @@ export function handleMorphoTx(morphoTx: MorphoTx): void {
   } else if (morphoTx.type === EventType.BORROW) {
     position.borrowShares = position.borrowShares.plus(morphoTx.shares);
     market.totalBorrowShares = market.totalBorrowShares.plus(morphoTx.shares);
-    market.totalBorrowAssets = market.totalBorrowAssets.plus(morphoTx.assets);
+    // zeroFloorPlus to avoid negative values when the user repays or get liquidated
+    market.totalBorrowAssets = zeroFloorPlus(
+      market.totalBorrowAssets,
+      morphoTx.assets
+    );
   } else if (morphoTx.type === EventType.COLLATERAL) {
     position.collateral = position.collateral.plus(morphoTx.assets);
     market.totalCollateral = market.totalCollateral.plus(morphoTx.assets);
