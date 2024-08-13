@@ -20,11 +20,24 @@ import {
 } from "../../generated/schema";
 import { handleMorphoTx } from "../distribute-market-rewards";
 import { getMarket, setupUser } from "../initializers";
+import { snapshotMarket } from "../snapshots";
 import { generateLogId, EventType } from "../utils";
 
 import { handleTransferEntity } from "./meta-morpho";
 
 export function handleAccrueInterest(event: AccrueInterestEvent): void {
+  const market = getMarket(event.params.id);
+  market.totalSupplyAssets = market.totalSupplyAssets.plus(
+    event.params.interest
+  );
+  market.totalBorrowAssets = market.totalBorrowAssets.plus(
+    event.params.interest
+  );
+
+  snapshotMarket(market, event.block.timestamp, event.block.number);
+  market.lastUpdate = event.block.timestamp;
+  market.save();
+
   if (event.params.feeShares.isZero()) return;
 
   const feeRecipient = MorphoFeeRecipient.load(Bytes.empty());
@@ -40,7 +53,8 @@ export function handleAccrueInterest(event: AccrueInterestEvent): void {
   morphoTx.user = feeRecipient.feeRecipient;
   morphoTx.market = getMarket(event.params.id).id;
   morphoTx.shares = event.params.feeShares;
-  morphoTx.assets = event.params.interest;
+  // interests are already accrued above
+  morphoTx.assets = BigInt.zero();
 
   morphoTx.timestamp = event.block.timestamp;
 
@@ -127,7 +141,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
   // we also need to remove bad debt assets in the supply of the market
   // if the bad debt shares are not zero
-  if (!event.params.badDebtShares.isZero()) {
+  if (event.params.badDebtShares.gt(BigInt.zero())) {
     const removeBadDebtAssetsId = generateLogId(event).concat(
       Bytes.fromUTF8(EventType.SUPPLY)
     );
