@@ -35,7 +35,6 @@ export function handleAccrueInterest(event: AccrueInterestEvent): void {
   );
 
   snapshotMarket(market, event.block.timestamp, event.block.number);
-  market.lastUpdate = event.block.timestamp;
   market.save();
 
   if (event.params.feeShares.isZero()) return;

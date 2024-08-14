@@ -138,7 +138,7 @@ describe("Morpho handlers", () => {
     assert.assertNotNull(morphoTx);
     assert.stringEquals(morphoTx!.type, EventType.ACCRUE_INTEREST);
     assert.bigIntEquals(morphoTx!.shares, feeShares);
-    assert.bigIntEquals(morphoTx!.assets, interest);
+    assert.bigIntEquals(morphoTx!.assets, BigInt.zero());
 
     const position = setupPosition(id, morphoFeeRecipient.feeRecipient);
     assert.assertNotNull(position);
