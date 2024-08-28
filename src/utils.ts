@@ -1,4 +1,4 @@
-import { Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { Bytes, ethereum, log, BigInt } from "@graphprotocol/graph-ts";
 
 export namespace EventType {
   export const SUPPLY = "SUPPLY";
@@ -21,4 +21,9 @@ export function generateLogId(event: ethereum.Event): Bytes {
   }
 
   return event.transaction.hash.concat(logIndex);
+}
+
+export function zeroFloorPlus(a: BigInt, b: BigInt): BigInt {
+  const result = a.plus(b);
+  return result.gt(BigInt.zero()) ? result : BigInt.zero();
 }
