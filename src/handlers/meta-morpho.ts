@@ -15,12 +15,16 @@ import {
   setupMetaMorphoPosition,
   setupUser,
 } from "../initializers";
+import { snapshotMetaMorpho } from "../snapshots";
 import { generateLogId } from "../utils";
 
 export function handleAccrueInterest(event: AccrueInterestEvent): void {
-  if (event.params.feeShares.isZero()) return;
-
   const mm = setupMetaMorpho(event.address);
+  mm.totalAssets = event.params.newTotalAssets;
+  snapshotMetaMorpho(mm, event.block.timestamp, event.block.number);
+  mm.save();
+
+  if (event.params.feeShares.isZero()) return;
 
   if (mm.feeRecipient === null) {
     log.critical("Fee recipient not set for MetaMorpho {}", [
@@ -36,8 +40,8 @@ export function handleAccrueInterest(event: AccrueInterestEvent): void {
   mmTx.user = setupUser(mm.feeRecipient!).id;
   mmTx.position = setupMetaMorphoPosition(event.address, mm.feeRecipient!).id;
   mmTx.shares = event.params.feeShares;
-  // we only track the assets difference that will be added to the total assets when the tx is handled
-  mmTx.assets = event.params.newTotalAssets.minus(mm.totalAssets);
+  // interests are already accrued above.
+  mmTx.assets = BigInt.zero();
   mmTx.timestamp = event.block.timestamp;
 
   mmTx.txHash = event.transaction.hash;
